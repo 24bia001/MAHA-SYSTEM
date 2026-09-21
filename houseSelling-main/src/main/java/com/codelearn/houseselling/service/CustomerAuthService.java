@@ -132,7 +132,7 @@ public class CustomerAuthService {
                         "CUSTOMER"
                 );
 
-        return new CustomerLoginResponse(
+        CustomerLoginResponse response = new CustomerLoginResponse(
                 customer.getCustomerId(),
                 customer.getName(),
                 customer.getEmail(),
@@ -141,6 +141,8 @@ public class CustomerAuthService {
                 "Bearer",
                 "Customer login successful"
         );
+        response.setImage(customer.getImage());
+        return response;
     }
 
     private void checkAccountLock(

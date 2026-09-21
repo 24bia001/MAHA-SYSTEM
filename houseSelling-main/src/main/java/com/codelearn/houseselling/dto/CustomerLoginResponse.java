@@ -9,6 +9,7 @@ public class CustomerLoginResponse {
     private String token;
     private String tokenType;
     private String message;
+    private String image;
 
     public CustomerLoginResponse() {
     }
@@ -77,6 +78,15 @@ public class CustomerLoginResponse {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getMessage() {

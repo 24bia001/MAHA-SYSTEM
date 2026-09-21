@@ -2,6 +2,7 @@ package com.codelearn.houseselling.controller;
 
 import com.codelearn.houseselling.dto.BookingResponse;
 import com.codelearn.houseselling.dto.CustomerResponse;
+import com.codelearn.houseselling.dto.CustomerUpdateRequest;
 import com.codelearn.houseselling.dto.DocumentResponse;
 import com.codelearn.houseselling.dto.HouseResponse;
 import com.codelearn.houseselling.dto.ManagementRequest;
@@ -187,6 +188,27 @@ public class ManagementController {
                 managementService
                         .getAllCustomers()
         );
+    }
+
+    @PutMapping("/customers/{id}")
+    public ResponseEntity<CustomerResponse> updateCustomer(
+            @PathVariable Long id,
+            @Valid @RequestBody CustomerUpdateRequest request) {
+
+        CustomerResponse response =
+                managementService.updateCustomer(id, request);
+
+        return response == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/customers/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+
+        managementService.deleteCustomer(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     // =========================

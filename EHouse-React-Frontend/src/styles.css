@@ -125,3 +125,455 @@
 @media(max-width:600px){.dashboardFooter{margin-left:0}.dashboardShell .luxSidebar{height:auto;max-height:none}.collectionActions{flex-direction:column;align-items:stretch}.selectedPerson .sectionHead{display:block}.selectedPerson .sectionHead>div:last-child{margin-top:15px}.sellerDetailGrid{flex-direction:column}.modalBox{padding:20px}}
 .paymentLocked{margin:12px 0;padding:12px 14px;border:1px solid #eadfc7;background:#faf6ea;color:#8a7040;border-radius:8px;font-size:11px}
 button:disabled{opacity:.45;cursor:not-allowed}
+
+
+/* =========================================================
+   MAHA E-HOUSING — UI POLISH
+   Frontend-only: buttons, links, dropdowns, forms and motion
+   ========================================================= */
+
+:root{
+  --ui-gold:#c7a86b;
+  --ui-gold-dark:#a88a50;
+  --ui-green:#071a14;
+  --ui-green-2:#0d2a20;
+  --ui-red:#a84338;
+  --ui-border:#dddcd4;
+  --ui-shadow:0 12px 34px rgba(20,32,27,.08);
+  --ui-fast:160ms;
+  --ui-med:240ms;
+}
+
+/* Smooth page-level interaction */
+html{scroll-behavior:smooth}
+body{
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button,input,select,textarea,a{font:inherit}
+button{cursor:pointer}
+
+/* Every button gets a consistent, calm interaction */
+button{
+  -webkit-tap-highlight-color:transparent;
+  transition:
+    background-color var(--ui-fast) ease,
+    color var(--ui-fast) ease,
+    border-color var(--ui-fast) ease,
+    box-shadow var(--ui-fast) ease,
+    transform var(--ui-fast) ease,
+    opacity var(--ui-fast) ease;
+}
+button:not(:disabled):active{transform:translateY(1px) scale(.99)}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:3px solid rgba(199,168,107,.28);
+  outline-offset:2px;
+}
+
+/* Main action buttons */
+.primaryBtn,.outlineBtn,.lightBtn,.iconBtn,.textBtn,.smallBtn,.backBtn{
+  border:0;
+  text-decoration:none;
+}
+.primaryBtn{
+  min-height:42px;
+  padding:11px 17px;
+  border-radius:9px;
+  background:linear-gradient(135deg,var(--ui-green),var(--ui-green-2));
+  color:#fff;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.15px;
+  box-shadow:0 7px 18px rgba(7,26,20,.12);
+}
+.primaryBtn:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 11px 24px rgba(7,26,20,.18);
+}
+.primaryBtn:active:not(:disabled){box-shadow:0 5px 12px rgba(7,26,20,.12)}
+
+.outlineBtn{
+  min-height:42px;
+  padding:10px 16px;
+  border:1px solid #cfcfc6;
+  border-radius:9px;
+  background:#fff;
+  color:var(--ink);
+  font-size:11px;
+  font-weight:700;
+}
+.outlineBtn:hover:not(:disabled){
+  border-color:var(--ui-gold);
+  background:#fbfaf5;
+  transform:translateY(-2px);
+  box-shadow:0 7px 18px rgba(20,32,27,.07);
+}
+
+.lightBtn{
+  min-height:44px;
+  padding:12px 18px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:9px;
+  background:#fff;
+  color:var(--ui-green);
+  font-size:11px;
+  font-weight:800;
+}
+.lightBtn:hover:not(:disabled){
+  transform:translateY(-2px);
+  background:#f6f4ec;
+  box-shadow:0 10px 25px rgba(0,0,0,.16);
+}
+
+.iconBtn{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--ui-border);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ui-green);
+}
+.iconBtn:hover:not(:disabled){
+  border-color:var(--ui-gold);
+  background:#fbfaf5;
+  transform:rotate(4deg) translateY(-1px);
+  box-shadow:0 8px 20px rgba(20,32,27,.09);
+}
+
+.textBtn{
+  background:transparent;
+  color:var(--ui-green);
+  padding:8px 0;
+  font-weight:750;
+}
+.textBtn:hover:not(:disabled){color:var(--ui-gold-dark);transform:translateX(3px)}
+
+.smallBtn{
+  min-height:32px;
+  padding:7px 10px;
+  border:1px solid transparent;
+  border-radius:7px;
+  background:#f1f1eb;
+  color:var(--ui-green);
+  font-size:10px;
+  font-weight:750;
+  text-decoration:none;
+}
+.smallBtn:hover:not(:disabled){
+  background:#e7e5dc;
+  border-color:#d6d2c5;
+  transform:translateY(-1px);
+}
+.smallBtn.dangerBtn,
+.dangerBtn{
+  background:#fff5f3;
+  color:var(--ui-red)!important;
+  border:1px solid #ead0cc!important;
+}
+.smallBtn.dangerBtn:hover:not(:disabled),
+.dangerBtn:hover:not(:disabled){
+  background:#fbe8e5;
+  border-color:#dcaea7!important;
+}
+
+.backBtn{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:transparent;
+  color:var(--muted);
+  padding:7px 0;
+}
+.backBtn:hover{color:var(--ui-green);transform:translateX(-3px)}
+
+/* Nav links/buttons */
+.nav nav button{
+  position:relative;
+  transition:color var(--ui-fast) ease,transform var(--ui-fast) ease;
+}
+.nav nav button:hover{transform:translateY(-1px)}
+.nav nav button.active:after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-7px;
+  height:2px;
+  border-radius:99px;
+  background:var(--ui-gold);
+  transform-origin:center;
+  animation:navLine .22s ease both;
+}
+@keyframes navLine{
+  from{transform:scaleX(.2);opacity:0}
+  to{transform:scaleX(1);opacity:1}
+}
+
+/* Native dropdowns: cleaner, easier to scan */
+select{
+  min-height:44px;
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--ui-border);
+  border-radius:9px;
+  padding:11px 40px 11px 13px;
+  color:var(--ink);
+  background:
+    linear-gradient(45deg,transparent 50%,#7d847e 50%) calc(100% - 17px) 19px/6px 6px no-repeat,
+    linear-gradient(135deg,#7d847e 50%,transparent 50%) calc(100% - 12px) 19px/6px 6px no-repeat,
+    #fff;
+  cursor:pointer;
+  transition:border-color var(--ui-fast) ease,box-shadow var(--ui-fast) ease,background-color var(--ui-fast) ease;
+}
+select:hover{border-color:#b9b4a5;background-color:#fffefb}
+select:focus{
+  border-color:var(--ui-gold);
+  box-shadow:0 0 0 4px rgba(199,168,107,.13);
+}
+
+/* Inputs and textareas */
+.formCard input,
+.formCard select,
+.formCard textarea,
+.authPanel input,
+.bookingPanel input,
+.collectionSearch{
+  transition:border-color var(--ui-fast) ease,box-shadow var(--ui-fast) ease,transform var(--ui-fast) ease;
+}
+.formCard input:hover,
+.formCard select:hover,
+.formCard textarea:hover,
+.authPanel input:hover,
+.bookingPanel input:hover,
+.collectionSearch:hover{border-color:#c7c4b8}
+.formCard input:focus,
+.formCard select:focus,
+.formCard textarea:focus,
+.authPanel input:focus,
+.bookingPanel input:focus,
+.collectionSearch:focus{
+  border-color:var(--ui-gold);
+  box-shadow:0 0 0 4px rgba(199,168,107,.11);
+}
+
+/* Auth role selector */
+.roleTabs button{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  transition:background var(--ui-fast) ease,color var(--ui-fast) ease,box-shadow var(--ui-fast) ease,transform var(--ui-fast) ease;
+}
+.roleTabs button:hover:not(.selected){background:rgba(255,255,255,.55);color:var(--ink)}
+.roleTabs button.selected{transform:translateY(-1px)}
+
+/* Admin tabs */
+.adminTabs button{
+  background:#fff;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all var(--ui-fast) ease;
+}
+.adminTabs button:hover:not(.selected){
+  color:var(--ink);
+  border-color:#c8c4b5;
+  transform:translateY(-1px);
+}
+.adminTabs button.selected{
+  border-color:var(--ui-green);
+  box-shadow:0 7px 18px rgba(7,26,20,.12);
+}
+
+/* Dashboard sidebar buttons */
+.sideNav button{
+  will-change:transform;
+}
+.sideNav button:active:not(:disabled){transform:translateX(2px) scale(.99)}
+.sideAction{
+  cursor:pointer;
+  transition:all var(--ui-fast) ease;
+}
+.sideAction:hover{
+  background:rgba(199,168,107,.2);
+  border-color:rgba(199,168,107,.7);
+  transform:translateY(-1px);
+}
+.sideHome{
+  cursor:pointer;
+  transition:color var(--ui-fast) ease,transform var(--ui-fast) ease;
+}
+.sideHome:hover{color:#fff;transform:translateX(-2px)}
+
+/* Cards feel clickable without being distracting */
+.houseCard{
+  transition:transform var(--ui-med) ease,box-shadow var(--ui-med) ease,border-color var(--ui-med) ease;
+}
+.houseCard:hover{
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(20,32,27,.08);
+}
+.houseCard .imageWrap button{
+  transition:transform var(--ui-fast) ease,box-shadow var(--ui-fast) ease,background var(--ui-fast) ease;
+}
+.houseCard .imageWrap button:hover{
+  transform:translateY(-2px) scale(1.05);
+  box-shadow:0 8px 18px rgba(0,0,0,.15);
+}
+
+/* Lists and action groups */
+.sellerHouse{
+  transition:background var(--ui-fast) ease,padding-left var(--ui-fast) ease,padding-right var(--ui-fast) ease;
+  border-radius:8px;
+}
+.sellerHouse:hover{
+  background:#faf9f4;
+  padding-left:8px;
+  padding-right:8px;
+}
+.personCard{
+  transition:transform var(--ui-med) ease,box-shadow var(--ui-med) ease,border-color var(--ui-med) ease,background var(--ui-med) ease;
+}
+.personCard.clickable:hover{
+  transform:translateY(-3px);
+  border-color:var(--ui-gold);
+  background:#fffefb;
+}
+.personActions{
+  flex-wrap:wrap;
+}
+.personActions button{min-width:58px}
+
+/* Table actions / rows */
+.tableCard table tbody tr{
+  transition:background var(--ui-fast) ease;
+}
+.tableCard table tbody tr:hover{background:#fbfaf6}
+table td button{white-space:nowrap}
+
+/* Modal animation */
+.modalBackdrop{
+  animation:fadeIn .18s ease both;
+}
+.modalBox{
+  animation:modalUp .22s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalUp{
+  from{opacity:0;transform:translateY(14px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.modalClose{
+  cursor:pointer;
+  background:#fff;
+  transition:all var(--ui-fast) ease;
+}
+.modalClose:hover{
+  border-color:#d8b98a;
+  background:#fbfaf5;
+  transform:rotate(90deg);
+}
+
+/* Toast */
+.toast{
+  animation:toastIn .25s cubic-bezier(.2,.8,.2,1) both;
+}
+.toast button{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  transition:color var(--ui-fast) ease,transform var(--ui-fast) ease;
+}
+.toast button:hover{color:#fff;transform:scale(1.08)}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Disabled controls */
+button:disabled,select:disabled,input:disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+/* Prevent accidental text selection on action controls */
+button,.roleTabs,.adminTabs{user-select:none}
+
+/* Better touch targets on small screens */
+@media(max-width:600px){
+  .primaryBtn,.outlineBtn,.lightBtn{min-height:44px}
+  .smallBtn{min-height:36px;padding-inline:11px}
+  .modalClose{width:42px;height:42px}
+}
+
+/* Respect users who prefer reduced motion */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+/* =========================================================
+   MAHA E-HOUSING — polished responsive footer
+   ========================================================= */
+.siteFooter{
+  margin-top:0;
+  padding:44px 5vw 20px;
+  background:#071a14;
+  color:#dce5df;
+  border-top:1px solid rgba(199,168,107,.28);
+}
+.footerMain{
+  max-width:1280px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1.35fr;
+  gap:36px;
+}
+.footerBrand{max-width:330px}
+.footerLogo{display:flex;align-items:center;gap:10px;color:#fff;letter-spacing:.2px}
+.footerLogo .brandMark{background:#c7a86b;color:#102019}
+.footerBrand p{margin:16px 0 0;color:#aebcb5;font-size:12px;line-height:1.8}
+.footerColumn{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.footerColumn h4{margin:0 0 8px;color:#c7a86b;font-size:10px;text-transform:uppercase;letter-spacing:1.8px}
+.footerColumn button,.footerColumn span{padding:0;border:0;background:transparent;color:#b9c8c0;font-size:12px;text-align:left;line-height:1.7}
+.footerColumn button:hover{color:#fff;transform:translateX(3px)}
+.footerBottom{max-width:1280px;margin:36px auto 0;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;gap:20px;color:#91a59b;font-size:10px;line-height:1.6}
+.dashboardFooter{margin-left:270px}
+@media(max-width:1000px){.dashboardFooter{margin-left:82px}.footerMain{grid-template-columns:1.5fr 1fr 1fr}}
+@media(max-width:700px){.siteFooter{padding:34px 6vw 18px}.footerMain{grid-template-columns:1fr 1fr;gap:28px}.footerBrand{grid-column:1/-1;max-width:none}.footerBottom{flex-direction:column;gap:5px;margin-top:28px}.dashboardFooter{margin-left:0}}
+@media(max-width:430px){.footerMain{grid-template-columns:1fr}.footerColumn{gap:7px}}
+
+/* Final layout correction: keep the footer full-width with no white strip. */
+.siteFooter,
+.dashboardFooter {
+  width: 100%;
+  margin-left: 0 !important;
+  background: #071a14;
+  color: #aebcb5;
+  padding: 25px 5vw;
+  border-top: 1px solid rgba(199,168,107,.22);
+}
+.siteFooter .footerBottom {
+  max-width: none;
+  margin: 0;
+  padding-top: 0;
+  border-top: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #aebcb5;
+  font-size: 11px;
+}
+@media(max-width:700px){
+  .siteFooter .footerBottom { flex-direction: column; gap: 6px; }
+}

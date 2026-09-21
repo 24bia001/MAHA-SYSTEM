@@ -2,6 +2,7 @@ package com.codelearn.houseselling.service;
 
 import com.codelearn.houseselling.dto.BookingResponse;
 import com.codelearn.houseselling.dto.CustomerResponse;
+import com.codelearn.houseselling.dto.CustomerUpdateRequest;
 import com.codelearn.houseselling.dto.DocumentResponse;
 import com.codelearn.houseselling.dto.HouseResponse;
 import com.codelearn.houseselling.dto.ManagementRequest;
@@ -361,6 +362,75 @@ public class ManagementService {
                 .stream()
                 .map(this::convertCustomerToResponse)
                 .toList();
+    }
+
+    public CustomerResponse updateCustomer(
+            Long id, CustomerUpdateRequest request) {
+
+        Customer customer =
+                customerRepository.findById(id).orElse(null);
+
+        if (customer == null) {
+            return null;
+        }
+
+        if (customerRepository.existsByEmailAndCustomerIdNot(
+                request.getEmail(), id)) {
+            throw new IllegalArgumentException(
+                    "Customer email already exists: " + request.getEmail()
+            );
+        }
+
+        customer.setName(request.getName());
+        customer.setEmail(request.getEmail());
+        customer.setPhone(request.getPhone());
+        customer.setAddress(request.getAddress());
+        customer.setNida(request.getNida());
+        customer.setImage(request.getImage());
+
+        if (request.getPassword() != null
+                && !request.getPassword().isBlank()) {
+            if (request.getPassword().length() < 6) {
+                throw new IllegalArgumentException(
+                        "Password must be at least 6 characters"
+                );
+            }
+            customer.setPassword(
+                    passwordEncoder.encode(request.getPassword())
+            );
+        }
+
+        return convertCustomerToResponse(
+                customerRepository.save(customer)
+        );
+    }
+
+    public void deleteCustomer(Long id) {
+
+        Customer customer =
+                customerRepository.findById(id).orElse(null);
+
+        if (customer == null) {
+            throw new IllegalArgumentException(
+                    "Customer not found with id: " + id
+            );
+        }
+
+        if (bookingRepository.existsByCustomerCustomerId(id)) {
+            throw new IllegalArgumentException(
+                    "Customer cannot be deleted because they have bookings. "
+                            + "Delete or resolve the bookings first."
+            );
+        }
+
+        if (saleRepository.existsByCustomerCustomerId(id)) {
+            throw new IllegalArgumentException(
+                    "Customer cannot be deleted because they have sales. "
+                            + "Delete or resolve the sales first."
+            );
+        }
+
+        customerRepository.delete(customer);
     }
 
     // =========================

@@ -8,6 +8,7 @@ public class LoginResponse {
     private String token;
     private String tokenType;
     private String message;
+    private String image;
 
     public LoginResponse() {
     }
@@ -66,6 +67,15 @@ public class LoginResponse {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getMessage() {

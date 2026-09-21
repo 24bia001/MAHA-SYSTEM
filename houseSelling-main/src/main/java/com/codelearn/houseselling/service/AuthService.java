@@ -76,6 +76,10 @@ public class AuthService {
                 seller.getEmail()
         );
 
+        response.setImage(
+                seller.getImage()
+        );
+
         response.setToken(
                 token
         );
