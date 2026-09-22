@@ -577,3 +577,472 @@ button,.roleTabs,.adminTabs{user-select:none}
 @media(max-width:700px){
   .siteFooter .footerBottom { flex-direction: column; gap: 6px; }
 }
+
+/* =========================================================
+   MAHA E-HOUSING — LUXURY DASHBOARD FINISH
+   Dashboard-only visual refinements; application logic unchanged.
+   ========================================================= */
+.dashboardNav{
+  height:78px;
+  padding:0 32px;
+  justify-content:flex-end;
+  background:rgba(251,250,246,.97);
+  border-bottom:1px solid #e7e2d6;
+  box-shadow:0 8px 28px rgba(17,31,25,.035);
+}
+.dashboardNav .navRight{margin-left:auto}
+.dashboardProfile{
+  min-width:190px;
+  justify-content:flex-end;
+  padding:6px 2px 6px 10px;
+  border-radius:14px;
+  transition:.2s ease;
+}
+.dashboardProfile:hover{background:#f1eee6}
+.profileChipPhoto{
+  width:42px;height:42px;min-width:42px;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;background:linear-gradient(145deg,#d9c08a,#8d7545);
+  color:#102019;font-weight:800;font-size:11px;border:2px solid #fff;
+  box-shadow:0 4px 16px rgba(16,32,25,.12)
+}
+.profileChipPhoto img{width:100%;height:100%;object-fit:cover;display:block}
+.profileChipPhoto>span{display:grid;place-items:center;width:100%;height:100%}
+.profileText{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.profileText b{font-size:12px;font-weight:700;color:#16271f;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profileText small{font-size:9px;color:#78857f;margin-top:4px;letter-spacing:.5px;text-transform:capitalize}
+
+.dashboardShell{background:linear-gradient(135deg,#f8f7f2 0%,#f4f4ee 100%)}
+.dashboardMain{background:transparent}
+.dashboardShell .pagePad{padding:44px 48px 70px}
+.dashboardShell .dashTop{
+  margin:-44px -48px 34px;
+  padding:42px 48px 30px!important;
+  min-height:190px;
+  background:radial-gradient(circle at 82% 0%,rgba(205,182,124,.13),transparent 28%),linear-gradient(120deg,#fffdf8,#f1f5ed);
+  border-bottom:1px solid #e6e3da;
+  position:relative;overflow:hidden
+}
+.dashboardShell .dashTop:after{
+  content:"";position:absolute;right:-90px;top:-100px;width:300px;height:300px;border:1px solid rgba(190,157,91,.15);border-radius:50%;
+}
+.dashboardShell .dashTop>div{position:relative;z-index:1}
+.dashboardShell .dashTop .primaryBtn{position:relative;z-index:2;border-radius:12px;padding:14px 20px;box-shadow:0 12px 28px rgba(7,23,17,.15)}
+.dashboardShell .dashTop h1{font-size:48px;line-height:1.02;margin:10px 0 9px;color:#12261e}
+.dashboardShell .dashTop p{font-size:13px;margin:0;max-width:620px}
+.dashboardShell .eyebrow{color:#9a7c46}
+
+.dashboardShell .metricRow{gap:14px}
+.dashboardShell .metricRow div{
+  min-height:135px;padding:22px 22px 18px;border-radius:16px;
+  background:linear-gradient(145deg,#ffffff,#f1f4ee)!important;
+  border:1px solid #e0e5dc!important;
+  box-shadow:0 10px 28px rgba(22,39,31,.045)
+}
+.dashboardShell .metricRow div:nth-child(2){background:linear-gradient(145deg,#fafdff,#edf5fa)!important;border-color:#dbe8ee!important}
+.dashboardShell .metricRow div:nth-child(3){background:linear-gradient(145deg,#fffef8,#f7f3e3)!important;border-color:#e8dfc5!important}
+.dashboardShell .metricRow div:nth-child(4){background:linear-gradient(145deg,#fffaff,#f3eef9)!important;border-color:#e5dff0!important}
+.dashboardShell .metricRow small{font-size:10px;letter-spacing:.2px}
+.dashboardShell .metricRow b{font-size:35px;letter-spacing:-1px}
+.dashboardShell .metricRow div:after{width:100px;height:100px;right:-40px;top:-42px}
+.dashboardShell .dashCard,.dashboardShell .tableCard{
+  border-radius:16px;background:rgba(255,255,255,.88);border-color:#e2e3db;
+  box-shadow:0 12px 36px rgba(20,32,27,.045);padding:25px
+}
+.dashboardShell .dashCard h3{font-size:18px;letter-spacing:-.3px}
+
+/* Admin financial summary */
+.adminOverviewGrid{display:grid;gap:18px}
+.adminCounts{grid-template-columns:repeat(4,1fr)!important}
+.adminCounts .metricRow{}
+.adminCounts div span{display:block;margin-top:7px;color:#88948e;font-size:9px}
+.adminFinanceGrid{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+.financeCard{
+  min-height:160px;padding:25px 28px;border-radius:18px;position:relative;overflow:hidden;
+  border:1px solid #dfe4db;box-shadow:0 14px 35px rgba(20,32,27,.055)
+}
+.financeCard.received{background:linear-gradient(135deg,#e9f3e9,#f9fcf7)}
+.financeCard.salesValue{background:linear-gradient(135deg,#f8f1dc,#fffdf5);border-color:#e8ddbd}
+.financeCard:after{content:"TZS";position:absolute;right:24px;bottom:-22px;font-size:86px;font-weight:700;letter-spacing:-6px;color:rgba(19,52,37,.055)}
+.financeCard small{display:block;font-size:11px;font-weight:700;color:#4f6259;text-transform:uppercase;letter-spacing:.7px}
+.financeLabel{display:inline-block;margin-top:7px;font-size:8px;letter-spacing:1.5px;color:#87938d}
+.financeCard>b{display:block;margin-top:22px;font-size:30px;letter-spacing:-1px;color:#10271e;position:relative;z-index:1}
+.financeCard p{margin:7px 0 0;color:#74817b;font-size:10px;position:relative;z-index:1}
+
+/* Seller booking actions stay on one clean row */
+.dashboardShell .listRow{grid-template-columns:55px 1.35fr 1.05fr 230px;gap:14px;padding:16px 0}
+.bookingStatusActions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:nowrap;white-space:nowrap}
+.bookingStatusActions .status{min-width:70px}
+.bookingBtn{border-radius:8px;padding:7px 10px;font-size:9px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.bookingBtn.approve{background:#e6f4ea;color:#16643d;border-color:#c8e7d0}
+.bookingBtn.reject{background:#fff0ef;color:#a33b35;border-color:#f2d0cc}
+.bookingBtn:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(0,0,0,.07)}
+.status.pending{background:#fff4d8!important;color:#8c6b1f!important}
+.status.confirmed{background:#e3f4e9!important;color:#17643d!important}
+.status.cancelled{background:#f9e9e8!important;color:#9d3d38!important}
+
+.sideHome{color:#e7aaa4!important;font-weight:700;padding:11px 12px!important;border-radius:9px;transition:.2s}
+.sideHome:hover{background:rgba(180,60,52,.12);color:#ffb3ad!important}
+.sideHome:first-letter{color:#ef6258}
+
+@media(max-width:1100px){
+  .dashboardShell .pagePad{padding-inline:32px}
+  .dashboardShell .dashTop{margin-left:-32px;margin-right:-32px;padding-left:32px!important;padding-right:32px!important}
+  .adminCounts{grid-template-columns:repeat(2,1fr)!important}
+  .adminFinanceGrid{grid-template-columns:1fr}
+  .dashboardShell .listRow{grid-template-columns:50px 1.1fr .9fr 210px}
+}
+@media(max-width:700px){
+  .dashboardNav{height:68px;padding:0 16px}
+  .dashboardProfile{min-width:0}
+  .profileText{display:none}
+  .dashboardShell .pagePad{padding:28px 18px 55px}
+  .dashboardShell .dashTop{margin:-28px -18px 26px;padding:28px 18px 24px!important;min-height:160px;display:flex;align-items:flex-end;gap:15px}
+  .dashboardShell .dashTop h1{font-size:34px}
+  .dashboardShell .dashTop .primaryBtn{font-size:10px;padding:11px 13px}
+  .adminCounts{grid-template-columns:1fr 1fr!important}
+  .financeCard>b{font-size:24px}
+  .dashboardShell .listRow{grid-template-columns:42px 1fr;gap:7px}
+  .bookingStatusActions{grid-column:2;justify-content:flex-start;flex-wrap:wrap;white-space:normal}
+  .bookingStatusActions .status{min-width:auto}
+}
+
+/* =========================================================
+   MAHA E-HOUSING — SIGNATURE LUXURY EXPERIENCE
+   FRONTEND ONLY — no API/backend behavior changed
+   ========================================================= */
+:root{
+  --lux-emerald:#06231a;
+  --lux-emerald-2:#0b3a2b;
+  --lux-jade:#1f8a68;
+  --lux-gold:#d4af62;
+  --lux-gold-soft:#f2dfad;
+  --lux-sapphire:#315caa;
+  --lux-plum:#7154a7;
+  --lux-rose:#b76d78;
+  --lux-sand:#f6f1e5;
+  --lux-ink:#10251d;
+  --lux-glass:rgba(255,255,255,.72);
+  --lux-shadow:0 24px 70px rgba(10,31,23,.10);
+  --lux-shadow-hover:0 30px 90px rgba(10,31,23,.16);
+  --lux-ease:cubic-bezier(.2,.75,.2,1);
+}
+
+/* Rich but restrained background atmosphere */
+body{
+  background:
+    radial-gradient(circle at 8% 10%,rgba(212,175,98,.08),transparent 28%),
+    radial-gradient(circle at 92% 22%,rgba(49,92,170,.06),transparent 25%),
+    linear-gradient(180deg,#fcfbf7 0%,#f8f6ef 100%);
+}
+.app{position:relative;overflow-x:clip}
+.app:before{content:"";position:fixed;inset:auto -10vw -22vh auto;width:42vw;height:42vw;border-radius:50%;background:radial-gradient(circle,rgba(31,138,104,.055),transparent 68%);pointer-events:none;z-index:-1}
+
+/* Page transitions */
+main{animation:luxPageIn .62s var(--lux-ease) both}
+@keyframes luxPageIn{from{opacity:0;transform:translateY(14px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+
+/* Header polish */
+.nav{box-shadow:0 8px 30px rgba(10,31,23,.035);transition:box-shadow .3s ease,background .3s ease}
+.nav:hover{box-shadow:0 12px 38px rgba(10,31,23,.06)}
+.brandMark{box-shadow:0 8px 22px rgba(7,23,17,.18);transition:transform .35s var(--lux-ease),box-shadow .35s ease}
+.brand:hover .brandMark{transform:rotate(-5deg) scale(1.06);box-shadow:0 12px 28px rgba(7,23,17,.24)}
+.profileChip{padding:6px 8px 6px 6px;border-radius:999px;transition:all .25s ease}
+.profileChip:hover{background:rgba(255,255,255,.85);box-shadow:0 10px 25px rgba(10,31,23,.08);transform:translateY(-1px)}
+.profileChipPhoto{overflow:hidden;flex:0 0 36px!important;width:36px!important;height:36px!important;border:2px solid rgba(212,175,98,.42)}
+.profileChipPhoto img{width:100%;height:100%;object-fit:cover}
+
+/* Luxury hero */
+.hero{background:
+  radial-gradient(circle at 82% 28%,rgba(212,175,98,.18),transparent 22%),
+  radial-gradient(circle at 25% 95%,rgba(31,138,104,.16),transparent 30%),
+  linear-gradient(135deg,#041812 0%,#08271d 52%,#0c3427 100%);
+}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.035) 43%,transparent 44%);pointer-events:none}
+.heroVisual img{box-shadow:0 30px 90px rgba(0,0,0,.32);transition:transform .9s var(--lux-ease),filter .6s ease}
+.heroVisual:hover img{transform:scale(1.018) rotate(.25deg);filter:saturate(1.08) contrast(1.03)}
+.floatingCard{transition:transform .45s var(--lux-ease),box-shadow .45s ease}
+.heroVisual:hover .floatingCard{transform:translateY(-7px) translateX(4px);box-shadow:0 28px 75px rgba(0,0,0,.30)}
+
+/* Search field */
+.searchBox{border:1px solid rgba(255,255,255,.35);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.searchBox:focus-within{transform:translateY(-3px);border-color:rgba(212,175,98,.75);box-shadow:0 25px 75px rgba(0,0,0,.28),0 0 0 4px rgba(212,175,98,.08)}
+
+/* Section rhythm */
+.section,.manifesto,.cta{position:relative}
+.sectionHead h2,.manifesto h2,.cta h2{transition:letter-spacing .4s ease}
+.sectionHead:hover h2{letter-spacing:-2.7px}
+
+/* House cards */
+.houseCard{background:rgba(255,255,255,.52);border:1px solid rgba(220,224,217,.9);border-radius:18px;padding:10px 10px 20px;box-shadow:0 8px 30px rgba(10,31,23,.035);overflow:hidden;transition:transform .45s var(--lux-ease),box-shadow .45s ease,border-color .35s ease,background .35s ease}
+.houseCard:hover{transform:translateY(-10px);box-shadow:var(--lux-shadow-hover);border-color:rgba(212,175,98,.5);background:rgba(255,255,255,.9)}
+.imageWrap{border-radius:13px}
+.imageWrap:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(3,17,12,.18));opacity:.7;pointer-events:none}
+.imageWrap img{transition:transform .9s var(--lux-ease),filter .6s ease}
+.houseCard:hover .imageWrap img{transform:scale(1.07);filter:saturate(1.08)}
+.tag{z-index:2;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.65);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.imageWrap button{z-index:2;transition:transform .35s var(--lux-ease),background .25s ease,box-shadow .25s ease}
+.houseCard:hover .imageWrap button{transform:rotate(-8deg) scale(1.08);box-shadow:0 12px 25px rgba(0,0,0,.15);background:var(--lux-gold-soft)}
+
+/* Manifesto and CTA richness */
+.manifesto{background:linear-gradient(135deg,#eeece2 0%,#f4f1e7 50%,#e7eee9 100%)}
+.manifesto:before,.cta:before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid rgba(212,175,98,.18);right:7%;top:10%;pointer-events:none}
+.principles article{transition:transform .35s var(--lux-ease),padding-left .35s ease}
+.principles article:hover{transform:translateY(-6px);padding-left:8px}
+.cta{background:
+  radial-gradient(circle at 85% 20%,rgba(212,175,98,.18),transparent 20%),
+  linear-gradient(135deg,#041811,#0b3024 70%,#123f30);
+}
+
+/* Auth experience */
+.authVisual{background:
+  radial-gradient(circle at 20% 20%,rgba(212,175,98,.18),transparent 25%),
+  linear-gradient(145deg,#041811,#0a3023 60%,#0d402e);
+}
+.authPanel{background:rgba(255,255,255,.78);backdrop-filter:blur(16px)}
+.authPanel input,.authPanel select,.formCard input,.formCard select,.formCard textarea,.collectionSearch{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease;background:rgba(255,255,255,.9)}
+.authPanel input:focus,.authPanel select:focus,.formCard input:focus,.formCard select:focus,.formCard textarea:focus,.collectionSearch:focus{border-color:rgba(212,175,98,.9);box-shadow:0 0 0 4px rgba(212,175,98,.11);transform:translateY(-1px)}
+.roleTabs{border:1px solid rgba(212,175,98,.18);box-shadow:inset 0 1px 0 #fff}
+.roleTabs button.selected{background:linear-gradient(135deg,#fff,#f4efe2);border:1px solid rgba(212,175,98,.22)}
+
+/* Dashboard signature topbar */
+.dashboardMain{min-width:0;background:linear-gradient(180deg,rgba(252,251,247,.88),rgba(248,246,239,.96))}
+.dashboardTopbar{height:72px;display:flex;align-items:center;justify-content:space-between;margin:-65px -7vw 42px;padding:0 7vw;border-bottom:1px solid rgba(214,216,208,.9);background:rgba(255,255,255,.76);backdrop-filter:blur(20px);position:sticky;top:0;z-index:12;box-shadow:0 8px 28px rgba(10,31,23,.045)}
+.dashboardTopbarBrand{display:flex;align-items:center;gap:11px}
+.dashboardTopbarBrand .brandMark{width:38px;height:38px;border-radius:11px}
+.dashboardTopbarBrand b{display:block;font-size:17px;letter-spacing:-.4px}
+.dashboardTopbarBrand small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.dashboardTopbarProfile{position:relative;display:flex;align-items:center;gap:10px;padding:7px 10px 7px 7px;border:1px solid rgba(214,216,208,.9);background:rgba(255,255,255,.82);border-radius:999px;box-shadow:0 8px 24px rgba(10,31,23,.06);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.dashboardTopbarProfile:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(10,31,23,.10);border-color:rgba(212,175,98,.5)}
+.topbarAvatar{width:38px;height:38px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#d7e5dc,#f2dfad);border:2px solid #fff;box-shadow:0 0 0 1px rgba(212,175,98,.45)}
+.topbarAvatar img{width:100%;height:100%;object-fit:cover}
+.topbarIdentity b{display:block;font-size:11px;line-height:1.2}
+.topbarIdentity small{display:block;color:var(--muted);font-size:9px;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.topbarStatus{width:8px;height:8px;border-radius:50%;background:#38b77b;box-shadow:0 0 0 4px rgba(56,183,123,.12);animation:luxPulse 2s infinite;position:absolute;left:34px;top:8px;z-index:2}
+@keyframes luxPulse{0%,100%{box-shadow:0 0 0 3px rgba(56,183,123,.12)}50%{box-shadow:0 0 0 7px rgba(56,183,123,.03)}}
+
+/* Dashboard shell/sidebar */
+.luxSidebar{background:
+  radial-gradient(circle at 20% 8%,rgba(212,175,98,.09),transparent 22%),
+  radial-gradient(circle at 85% 78%,rgba(31,138,104,.12),transparent 28%),
+  linear-gradient(180deg,#041811 0%,#06251b 55%,#071d16 100%);box-shadow:18px 0 55px rgba(4,24,17,.10)}
+.sideBrand .brandMark{transition:transform .35s var(--lux-ease)}
+.sideBrand:hover .brandMark{transform:rotate(-6deg) scale(1.05)}
+.sideUser{border-radius:14px;transition:background .3s ease,transform .3s ease}
+.sideUser:hover{background:rgba(255,255,255,.035);transform:translateX(3px)}
+.sideAvatar{box-shadow:0 0 0 1px rgba(212,175,98,.55),0 10px 25px rgba(0,0,0,.16)}
+.sideNav button{transition:transform .3s var(--lux-ease),background .3s ease,color .3s ease,box-shadow .3s ease}
+.sideNav button:hover{transform:translateX(5px)!important}
+.sideNav button.active{box-shadow:inset 3px 0 var(--lux-gold),0 10px 28px rgba(0,0,0,.08)!important}
+.sideAction,.sideHome{transition:transform .3s var(--lux-ease),background .3s ease,border-color .3s ease}
+.sideAction:hover,.sideHome:hover{transform:translateX(4px);background:rgba(212,175,98,.18)}
+
+/* Dashboard cards */
+.dashboardShell .dashTop h1{background:linear-gradient(120deg,#10251d 15%,#285e4b 55%,#9a773c 105%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dashboardShell .metricRow{gap:18px}
+.dashboardShell .metricRow>div{border-radius:18px!important;padding:25px!important;box-shadow:0 12px 35px rgba(10,31,23,.05);transition:transform .4s var(--lux-ease),box-shadow .4s ease,border-color .3s ease!important}
+.dashboardShell .metricRow>div:nth-child(1){background:linear-gradient(145deg,#edf8f1,#e1f1e9)!important}
+.dashboardShell .metricRow>div:nth-child(2){background:linear-gradient(145deg,#edf4fc,#e5eef9)!important}
+.dashboardShell .metricRow>div:nth-child(3){background:linear-gradient(145deg,#fff9e8,#f7efd5)!important}
+.dashboardShell .metricRow>div:nth-child(4){background:linear-gradient(145deg,#f6effb,#eee5f7)!important}
+.dashboardShell .metricRow>div:hover{transform:translateY(-7px) scale(1.01);box-shadow:var(--lux-shadow-hover)!important;border-color:rgba(212,175,98,.45)!important}
+.dashboardShell .metricRow b{font-size:39px!important;letter-spacing:-2px}
+.dashboardShell .dashCard,.dashboardShell .tableCard,.peopleCollection{border-radius:18px!important;box-shadow:var(--lux-shadow)!important;background:rgba(255,255,255,.82)!important;backdrop-filter:blur(12px);transition:transform .35s ease,box-shadow .35s ease,border-color .3s ease}
+.dashboardShell .dashCard:hover,.dashboardShell .tableCard:hover{box-shadow:0 28px 75px rgba(10,31,23,.12)!important;border-color:rgba(212,175,98,.32)}
+.listRow{transition:background .25s ease,transform .25s ease,border-color .25s ease;border-radius:10px}
+.listRow:hover{background:linear-gradient(90deg,rgba(212,175,98,.07),rgba(31,138,104,.035));transform:translateX(4px)}
+
+/* Admin finance cards */
+.adminFinanceGrid{gap:18px!important}
+.financeCard{position:relative;overflow:hidden;border-radius:20px!important;box-shadow:0 16px 45px rgba(10,31,23,.09);transition:transform .4s var(--lux-ease),box-shadow .4s ease}
+.financeCard:before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-55px;top:-65px;border:1px solid rgba(255,255,255,.45);box-shadow:0 0 0 18px rgba(255,255,255,.035)}
+.financeCard.received{background:linear-gradient(135deg,#073528,#167153)!important;color:white}
+.financeCard.salesValue{background:linear-gradient(135deg,#2f4f91,#6c4c9c)!important;color:white}
+.financeCard small,.financeCard p{color:rgba(255,255,255,.74)!important}
+.financeCard .financeLabel{color:rgba(255,255,255,.58)!important}
+.financeCard b{font-size:clamp(27px,3vw,43px)!important;letter-spacing:-1.5px}
+.financeCard:hover{transform:translateY(-8px) scale(1.012);box-shadow:0 30px 75px rgba(10,31,23,.18)}
+
+/* Seller booking/status controls — clean horizontal row */
+.bookingActions,.statusActions,.bookingRowActions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.bookingActions>*{flex:0 0 auto}
+.sellerGrid .smallBtn,.sellerGrid .dangerBtn{border-radius:999px!important;text-decoration:none!important;font-weight:800;min-width:82px}
+.sellerGrid .smallBtn:not(.dangerBtn){background:linear-gradient(135deg,#eaf7ef,#d9f0e2);color:#1f7650!important;border:1px solid #bfe0ca!important}
+.sellerGrid .dangerBtn{background:linear-gradient(135deg,#fff1ef,#fbe1dd)!important}
+.sellerGrid .status{border-radius:999px!important;padding:7px 10px!important;background:#f6f2e7}
+
+/* Tables */
+.tableCard{overflow:auto}
+table{border-collapse:separate!important;border-spacing:0 7px!important;width:100%}
+thead th{color:#75827b!important;font-size:9px!important;letter-spacing:1.2px;text-transform:uppercase;padding:12px 13px!important;border:0!important}
+tbody tr{background:rgba(249,249,245,.9);box-shadow:0 5px 18px rgba(10,31,23,.025);transition:transform .25s ease,box-shadow .25s ease,background .25s ease}
+tbody tr:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(10,31,23,.08);background:#fff}
+tbody td{padding:13px!important;border-top:1px solid #e6e7e0!important;border-bottom:1px solid #e6e7e0!important;font-size:10px!important}
+tbody td:first-child{border-left:1px solid #e6e7e0!important;border-radius:10px 0 0 10px}
+tbody td:last-child{border-right:1px solid #e6e7e0!important;border-radius:0 10px 10px 0}
+
+/* Forms / modals */
+.formCard{gap:13px!important}
+.formCard input,.formCard select,.formCard textarea{border-radius:11px!important;min-height:45px}
+.modalBackdrop{animation:luxFade .25s ease both}
+.modalBox{animation:luxModal .45s var(--lux-ease) both!important;border-radius:22px!important}
+@keyframes luxFade{from{opacity:0}to{opacity:1}}
+@keyframes luxModal{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+.modalClose:hover{transform:rotate(90deg);background:#f6f1e5;border-color:rgba(212,175,98,.55)}
+
+/* Buttons become premium pills where appropriate */
+.primaryBtn{background:linear-gradient(135deg,#06231a,#0e4b37 70%,#1f6b52)!important;box-shadow:0 10px 28px rgba(6,35,26,.18)!important;border:1px solid rgba(212,175,98,.14)!important}
+.primaryBtn:hover:not(:disabled){background:linear-gradient(135deg,#0a3426,#146047 70%,#258064)!important;transform:translateY(-3px)!important;box-shadow:0 17px 35px rgba(6,35,26,.24)!important}
+.outlineBtn:hover:not(:disabled){background:linear-gradient(135deg,#fff,#f6f1e5)!important}
+
+/* Toast */
+.toast{border:1px solid rgba(212,175,98,.28);background:linear-gradient(135deg,#06231a,#0d3a2b);box-shadow:0 22px 60px rgba(4,24,17,.28);animation:luxToast .45s var(--lux-ease) both}
+@keyframes luxToast{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+
+/* Loading */
+.loader{position:relative}
+.loader span{animation:luxDots 1.2s infinite ease-in-out}
+@keyframes luxDots{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* Reduce motion for accessibility */
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Responsive dashboard topbar */
+@media(max-width:1000px){
+  .dashboardTopbar{margin:-65px -4vw 34px;padding:0 4vw}
+}
+@media(max-width:600px){
+  .dashboardTopbar{height:64px;margin:-38px -5vw 30px;padding:0 5vw}
+  .dashboardTopbarBrand b{font-size:15px}
+  .dashboardTopbarBrand small{font-size:8px}
+  .dashboardTopbarProfile{padding:5px 8px 5px 5px}
+  .topbarAvatar{width:34px;height:34px}
+  .topbarIdentity{display:none}
+  .topbarStatus{left:31px;top:7px}
+  .dashboardShell .metricRow{grid-template-columns:1fr 1fr}
+  .dashboardShell .metricRow>div{padding:18px!important}
+  .bookingActions,.statusActions,.bookingRowActions{flex-wrap:wrap}
+}
+
+/* Seller booking actions: one elegant horizontal control group */
+.bookingStatusActions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:nowrap;min-width:max-content}
+.bookingBtn{border:1px solid transparent!important;border-radius:999px!important;padding:7px 12px!important;font-size:9px!important;font-weight:800!important;letter-spacing:.2px;white-space:nowrap;transition:transform .25s var(--lux-ease),box-shadow .25s ease,background .25s ease!important}
+.bookingBtn.approve{background:linear-gradient(135deg,#e5f6eb,#ccebd8)!important;color:#176943!important;border-color:#b8dcc5!important}
+.bookingBtn.reject{background:linear-gradient(135deg,#fff0ee,#f9dcd8)!important;color:#a13d34!important;border-color:#e7bdb7!important}
+.bookingBtn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(10,31,23,.10)}
+.bookingStatusActions .status{min-width:74px;text-align:center}
+@media(max-width:900px){.bookingStatusActions{justify-content:flex-start;flex-wrap:wrap;min-width:0}.listRow{grid-template-columns:50px 1fr;}.listRow>span:nth-child(3){grid-column:2}.bookingStatusActions{grid-column:2}}
+
+/* MAHA E-HOUSING — single dashboard topbar
+   The authenticated shell uses only DashboardTopbar. The public .nav stays on
+   home/about/auth pages, so dashboard pages never render a second header. */
+.dashboardShell .dashboardTopbar{
+  width:calc(100% + 96px);
+  margin:-44px -48px 42px;
+  padding:0 48px;
+  min-height:78px;
+  border-bottom:1px solid rgba(214,216,208,.9);
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(250,249,244,.9));
+  box-shadow:0 10px 34px rgba(10,31,23,.055);
+}
+.dashboardTopbarBrand{min-width:0}
+.dashboardTopbarBrand .brandMark{box-shadow:0 8px 20px rgba(7,35,25,.14),0 0 0 1px rgba(212,175,98,.18)}
+.dashboardTopbarProfile{cursor:default}
+.dashboardTopbarProfile .topbarIdentity b{font-size:12px}
+.dashboardTopbarProfile .topbarIdentity small{font-size:9px}
+
+@media(max-width:1000px){
+  .dashboardShell .dashboardTopbar{
+    width:calc(100% + 64px);
+    margin:-44px -32px 34px;
+    padding:0 32px;
+  }
+}
+@media(max-width:600px){
+  .dashboardShell .dashboardTopbar{
+    width:calc(100% + 36px);
+    margin:-28px -18px 28px;
+    padding:0 18px;
+    min-height:68px;
+  }
+  .dashboardTopbarBrand b{font-size:15px}
+  .dashboardTopbarBrand small{font-size:8px}
+  .dashboardTopbarProfile{padding:5px 8px 5px 5px}
+  .topbarAvatar{width:34px;height:34px}
+  .topbarIdentity{display:block}
+  .topbarIdentity b{max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbarIdentity small{display:block}
+  .topbarStatus{left:31px;top:7px}
+}
+
+
+/* MAHA E-HOUSING — refined public index topbar */
+.publicNav{
+  min-height:78px;
+  height:78px;
+  padding:0 clamp(22px,5vw,76px);
+  background:rgba(252,251,247,.90);
+  border-bottom:1px solid rgba(199,168,107,.18);
+  box-shadow:0 8px 32px rgba(7,26,20,.055);
+}
+.publicNav .brand{gap:12px;letter-spacing:-.35px}
+.publicNav .brandMark{width:39px;height:39px;border-radius:12px;box-shadow:0 7px 18px rgba(7,26,20,.13),inset 0 0 0 1px rgba(199,168,107,.2)}
+.publicNav nav{gap:30px}
+.publicNav nav button{font-size:12px;font-weight:650;letter-spacing:.2px;padding:29px 0;color:#718078}
+.publicNav nav button:hover{color:#102019}
+.publicNav .navRight{gap:10px}
+.publicNav .outlineBtn{border-color:#d9d7cd;background:rgba(255,255,255,.72);border-radius:999px;padding:11px 18px}
+.publicNav .primaryBtn{border-radius:999px;padding:12px 20px;box-shadow:0 8px 20px rgba(7,26,20,.13)}
+.publicNav .primaryBtn:hover{box-shadow:0 12px 28px rgba(7,26,20,.18)}
+.detailsPage .backBtn{display:inline-flex;align-items:center;gap:7px;padding:8px 0;font-weight:650;transition:transform .22s ease,color .22s ease}
+.detailsPage .backBtn:hover{transform:translateX(-4px);color:#102019}
+@media(max-width:600px){
+  .publicNav{height:70px;min-height:70px;padding:0 16px}
+  .publicNav nav{display:none}
+  .publicNav .outlineBtn{display:inline-flex;padding:9px 13px}
+  .publicNav .primaryBtn{padding:10px 14px}
+}
+
+/* MAHA E-HOUSING official logo */
+.brandLogo{width:38px;height:38px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:#fff;box-shadow:0 6px 18px rgba(10,24,18,.12);border:1px solid rgba(199,165,106,.28)}
+.brandLogo img{width:100%;height:100%;object-fit:cover;display:block}
+.dashboardLogo{width:46px;height:46px;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:#fff;box-shadow:0 8px 22px rgba(0,0,0,.16);border:1px solid rgba(199,165,106,.4);flex:0 0 auto}
+.dashboardLogo img{width:100%;height:100%;object-fit:cover;display:block}
+.sideLogo{width:42px;height:42px;border-radius:11px;overflow:hidden;display:grid;place-items:center;background:#fff;box-shadow:0 5px 18px rgba(0,0,0,.18);border:1px solid rgba(199,168,107,.55);flex:0 0 auto}
+.sideLogo img{width:100%;height:100%;object-fit:cover;display:block}
+@media(max-width:1000px){.dashboardLogo{width:40px;height:40px}.dashboardTopbarBrand>div{display:none}}
+
+/* MAHA — unified one-row table action controls */
+.rowActions{
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+  min-width:max-content;
+}
+.rowActions button{flex:0 0 auto!important;white-space:nowrap!important}
+.listRow .rowActions{grid-column:5;justify-self:end}
+.listRow{grid-template-columns:60px minmax(140px,1.5fr) minmax(130px,1fr) 100px minmax(max-content,auto)}
+.actionCancel{background:linear-gradient(135deg,#fff7e8,#f7e8c8)!important;color:#76551b!important;border:1px solid #e5cc93!important;text-decoration:none!important;border-radius:999px!important;padding:7px 12px!important;font-weight:800!important}
+.actionReceipt{background:linear-gradient(135deg,#edf7f1,#d9eee2)!important;color:#176943!important;border:1px solid #b8dcc5!important;text-decoration:none!important;border-radius:999px!important;padding:7px 12px!important;font-weight:800!important}
+.rowActions .dangerBtn{border-radius:999px!important;text-decoration:none!important}
+.houseActions{justify-content:flex-end}
+.detailActions{align-items:center}
+.personActions{display:flex!important;align-items:center;gap:7px;flex-wrap:nowrap!important;white-space:nowrap}
+.collectionActions{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.tableCard td:last-child .rowActions,.tableCard td:last-child .personActions{justify-content:flex-end}
+
+@media(max-width:900px){
+  .listRow{grid-template-columns:50px minmax(150px,1fr) minmax(120px,1fr) 90px minmax(max-content,auto);min-width:680px}
+  .listRow .rowActions{grid-column:5}
+  .bookingStatusActions{flex-wrap:nowrap!important;white-space:nowrap;overflow-x:auto;padding-bottom:2px}
+  .bookingStatusActions>*{flex:0 0 auto}
+}
+@media(max-width:600px){
+  .listRow{min-width:650px;grid-template-columns:48px 160px 135px 90px minmax(max-content,auto)}
+  .rowActions{flex-wrap:nowrap!important}
+  .detailActions{justify-content:flex-start;overflow-x:auto;padding-bottom:3px}
+  .houseActions{justify-content:flex-end}
+  .personActions{flex-wrap:nowrap!important}
+}
