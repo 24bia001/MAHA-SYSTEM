@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {createRoot} from "react-dom/client";
 import "./styles.css";
 import mahaLogo from "./assets/maha-logo.png";
+import mahaLogoPdf from "./assets/maha-logo-pdf.jpg";
 
 const API = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
@@ -57,6 +58,213 @@ function readImage(file,setter){
 }
 
 
+async function downloadReportPdf(reportWindow, data, type, id) {
+  // Give the report browser a moment to finish layout, fonts, and images.
+  try { await reportWindow.document.fonts?.ready; } catch (_) {}
+  const waitForImages = Array.from(reportWindow.document.images || []).map(img =>
+    img.complete ? Promise.resolve() : new Promise(resolve => { img.addEventListener("load", resolve, {once:true}); img.addEventListener("error", resolve, {once:true}); })
+  );
+  await Promise.all(waitForImages);
+
+  // Render the actual report page into an image first. This keeps the PDF
+  // visually identical to what the user sees in the Receipt/Contract window.
+  const reportDoc = reportWindow.document;
+  const reportBody = reportDoc.body;
+  if (!reportBody) throw new Error("Report page is not ready yet.");
+
+  const clone = reportBody.cloneNode(true);
+  clone.querySelectorAll(".reportToolbar").forEach(el => el.remove());
+  clone.querySelectorAll("script").forEach(el => el.remove());
+
+  // Copy the report's own <style> tags into the SVG so its exact CSS is kept.
+  const styleText = Array.from(reportDoc.querySelectorAll("style"))
+    .map(style => style.textContent || "")
+    .join("\n");
+
+  // External/local images must be embedded as data URLs before the SVG is
+  // painted to canvas; otherwise Chrome can block the canvas as tainted.
+  const originalImages = Array.from(reportBody.querySelectorAll("img"));
+  const clonedImages = Array.from(clone.querySelectorAll("img"));
+  for (let i = 0; i < clonedImages.length; i++) {
+    const original = originalImages[i];
+    const cloned = clonedImages[i];
+    if (!original || !cloned || !original.src) continue;
+    try {
+      const response = await fetch(original.src);
+      if (!response.ok) continue;
+      const blob = await response.blob();
+      const reader = new FileReader();
+      cloned.src = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (_) {
+      // Keep the original image if it cannot be fetched.
+    }
+  }
+
+  const toolbar = reportBody.querySelector(".reportToolbar");
+  const toolbarHeight = toolbar ? toolbar.getBoundingClientRect().height : 0;
+  const width = Math.ceil(Math.max(reportBody.scrollWidth, reportBody.getBoundingClientRect().width, 1));
+  const height = Math.ceil(Math.max(reportBody.scrollHeight - toolbarHeight, reportBody.getBoundingClientRect().height - toolbarHeight, 1));
+  clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+  clone.style.width = `${width}px`;
+  clone.style.minWidth = `${width}px`;
+  clone.style.maxWidth = `${width}px`;
+  clone.style.height = `${height}px`;
+  clone.style.minHeight = `${height}px`;
+  clone.style.overflow = "visible";
+
+  const serializer = new XMLSerializer();
+  const html = serializer.serializeToString(clone);
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <defs><style><![CDATA[${styleText}]]></style></defs>
+  <foreignObject x="0" y="0" width="${width}" height="${height}">${html}</foreignObject>
+</svg>`;
+
+  const svgBlob = new Blob([svg], {type: "image/svg+xml;charset=utf-8"});
+  const svgUrl = URL.createObjectURL(svgBlob);
+  try {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = svgUrl;
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => reject(new Error("Could not render the report page."));
+    });
+
+    const scale = Math.min(2, Math.max(1, 1600 / width));
+    const fullCanvas = document.createElement("canvas");
+    fullCanvas.width = Math.max(1, Math.round(width * scale));
+    fullCanvas.height = Math.max(1, Math.round(height * scale));
+    const fullCtx = fullCanvas.getContext("2d");
+    if (!fullCtx) throw new Error("Canvas is not available in this browser.");
+    fullCtx.fillStyle = "#ffffff";
+    fullCtx.fillRect(0, 0, fullCanvas.width, fullCanvas.height);
+    fullCtx.drawImage(image, 0, 0, fullCanvas.width, fullCanvas.height);
+
+    // A4 PDF pages. The report image is sliced into A4-sized pages without
+    // changing its visual proportions, so the downloaded PDF matches the page.
+    const pdfW = 595;
+    const pdfH = 842;
+    const pagePixelH = Math.max(1, Math.round(fullCanvas.width * pdfH / pdfW));
+    const pageImages = [];
+    for (let y = 0; y < fullCanvas.height; y += pagePixelH) {
+      const sliceH = Math.min(pagePixelH, fullCanvas.height - y);
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = fullCanvas.width;
+      pageCanvas.height = pagePixelH;
+      const pageCtx = pageCanvas.getContext("2d");
+      pageCtx.fillStyle = "#ffffff";
+      pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      pageCtx.drawImage(
+        fullCanvas,
+        0, y, fullCanvas.width, sliceH,
+        0, 0, fullCanvas.width, sliceH
+      );
+      const jpeg = await new Promise((resolve, reject) => {
+        pageCanvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create PDF image.")), "image/jpeg", 0.96);
+      });
+      pageImages.push(new Uint8Array(await jpeg.arrayBuffer()));
+    }
+
+    const encoder = new TextEncoder();
+    const ascii = value => encoder.encode(value);
+    const concat = arrays => {
+      const total = arrays.reduce((sum, a) => sum + a.length, 0);
+      const out = new Uint8Array(total);
+      let offset = 0;
+      for (const a of arrays) { out.set(a, offset); offset += a.length; }
+      return out;
+    };
+
+    const objects = [];
+    const addObject = bytes => { objects.push(bytes); return objects.length; };
+    const catalogId = addObject(null);
+    const pagesId = addObject(null);
+    const pageIds = [];
+    const imageIds = [];
+
+    pageImages.forEach((jpeg, index) => {
+      const imageId = addObject(concat([
+        ascii(`<< /Type /XObject /Subtype /Image /Width ${fullCanvas.width} /Height ${pagePixelH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`),
+        jpeg,
+        ascii("\nendstream")
+      ]));
+      imageIds.push(imageId);
+
+      const content = ascii(`q\n${pdfW} 0 0 ${pdfH} 0 0 cm\n/Im${index + 1} Do\nQ\n`);
+      const contentId = addObject(concat([
+        ascii(`<< /Length ${content.length} >>\nstream\n`),
+        content,
+        ascii("endstream")
+      ]));
+
+      const pageId = addObject(ascii(
+        `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pdfW} ${pdfH}] ` +
+        `/Resources << /XObject << /Im${index + 1} ${imageId} 0 R >> >> ` +
+        `/Contents ${contentId} 0 R >>`
+      ));
+      pageIds.push(pageId);
+    });
+
+    objects[catalogId - 1] = ascii(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+    objects[pagesId - 1] = ascii(`<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`);
+
+    const header = ascii("%PDF-1.4\n%MAHA\n");
+    const offsets = [0];
+    let offset = header.length;
+    const bodyParts = [header];
+    objects.forEach((obj, i) => {
+      offsets.push(offset);
+      const part = concat([ascii(`${i + 1} 0 obj\n`), obj, ascii("\nendobj\n")]);
+      bodyParts.push(part);
+      offset += part.length;
+    });
+    const xrefOffset = offset;
+    let xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    for (let i = 1; i <= objects.length; i++) xref += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+    xref += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    bodyParts.push(ascii(xref));
+
+    const pdfBlob = new Blob(bodyParts, {type: "application/pdf"});
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = `MAHA-E-HOUSING-${type.toUpperCase()}-${id || "REPORT"}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 5000);
+  } catch (pdfError) {
+    // Chrome can block canvas rendering of an HTML foreignObject in some
+    // environments. In that case use Chrome's native PDF printer. It prints
+    // the real report DOM, so the result keeps the exact page appearance.
+    const doc = reportWindow.document;
+    const toolbar = doc.querySelector(".reportToolbar");
+    const oldDisplay = toolbar ? toolbar.style.display : "";
+    if (toolbar) toolbar.style.display = "none";
+    try {
+      reportWindow.focus();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      reportWindow.print();
+    } finally {
+      if (toolbar) toolbar.style.display = oldDisplay;
+    }
+  } finally {
+    if (typeof svgUrl !== "undefined") URL.revokeObjectURL(svgUrl);
+  }
+}
+
+function addReportToolbar(w, type, id, data){
+  const d=w.document; const bar=d.createElement("div"); bar.className="reportToolbar"; bar.style="position:sticky;top:0;z-index:9999;display:flex;gap:10px;justify-content:flex-end;padding:10px 0 14px;background:#fff";
+  const download=d.createElement("button"); download.textContent=`Download ${type} PDF`; download.style="background:#075c40;color:#fff;border:0;padding:10px 16px;border-radius:7px;font-weight:800;cursor:pointer";
+  download.onclick=()=>downloadReportPdf(w,data,type,id).catch(()=>alert("The PDF could not be downloaded. Please try again."));
+  bar.append(download); d.body.prepend(bar);
+}
+
 function printReceiptReport(p){
   const w=window.open("","_blank","width=900,height=900");
   if(!w) return;
@@ -74,7 +282,7 @@ function printReceiptReport(p){
   <div class="grid"><div class="card"><h3>CUSTOMER</h3><div class="row"><span>Name</span><b>${p.customerName||"—"}</b></div><div class="row"><span>Email</span><b>${p.customerEmail||"—"}</b></div><div class="row"><span>Phone</span><b>${p.customerPhone||"—"}</b></div><div class="row"><span>Address</span><b>${p.customerAddress||"—"}</b></div><div class="row"><span>NIDA</span><b>${p.customerNida||"—"}</b></div></div>
   <div class="card"><h3>SELLER</h3><div class="row"><span>Name</span><b>${p.sellerName||"—"}</b></div><div class="row"><span>Email</span><b>${p.sellerEmail||"—"}</b></div><div class="row"><span>Phone</span><b>${p.sellerPhone||"—"}</b></div><div class="row"><span>Address</span><b>${p.sellerAddress||"—"}</b></div><div class="row"><span>NIDA</span><b>${p.sellerNida||"—"}</b></div></div></div>
   <div class="sign"><div class="sig"><b>Seller signature</b>${p.sellerName||"Seller"}<br/>Date: __________________</div><div class="sig"><b>Customer signature</b>${p.customerName||"Customer"}<br/>Date: __________________</div></div>
-  <div class="footer">MAHA E-HOUSING · This document was generated from the E-House portal. Keep it with your property records.</div><script>window.print()</script></body></html>`);w.document.close();
+  <div class="footer">MAHA E-HOUSING · This document was generated from the E-House portal. Keep it with your property records.</div></body></html>`);w.document.close();addReportToolbar(w,"Receipt",p.paymentId,p);
 }
 
 function printContractReport(p){
@@ -93,7 +301,7 @@ function printContractReport(p){
   <div class="section"><h3>3. CUSTOMER / BUYER DETAILS</h3><div class="grid"><div><div class="field"><span>Full name:</span><b>${p.customerName||"—"}</b></div><div class="field"><span>Email:</span><b>${p.customerEmail||"—"}</b></div><div class="field"><span>Phone:</span><b>${p.customerPhone||"—"}</b></div></div><div><div class="field"><span>Address:</span><b>${p.customerAddress||"—"}</b></div><div class="field"><span>NIDA:</span><b>${p.customerNida||"—"}</b></div><div class="field"><span>Customer ID:</span><b>#${p.customerId||"—"}</b></div></div></div></div>
   <div class="section"><h3>4. PAYMENT TERMS & RECORD</h3><table class="schedule"><thead><tr><th>House price</th><th>This payment</th><th>Total paid</th><th>Remaining balance</th><th>Method</th><th>Status</th></tr></thead><tbody><tr><td>${money(p.housePrice)}</td><td>${money(p.amount)}</td><td>${money(p.totalPaid)}</td><td>${money(p.remainingAmount)}</td><td>${p.paymentMethod||"—"}</td><td>${statusOf(p.status)}</td></tr></tbody></table><ul class="terms"><li>The seller confirms receipt of the recorded payment when the payment status is marked RECEIVED.</li><li>The remaining balance is the house price less all seller-confirmed payments recorded against this booking.</li><li>The property is reserved as SOLD OUT after a seller-confirmed payment, while any outstanding balance remains payable under the agreed installment arrangement.</li><li>Final sale completion is recorded when the total confirmed payments reach the full house price.</li><li>This document records the transaction between the parties and does not replace any legally required transfer, registration, tax, or governmental documentation.</li></ul></div>
   <div class="signatures"><div class="signature"><strong>SELLER SIGNATURE</strong>${p.sellerName||"Seller"}<br/>Signature: ______________________________<br/>Date: __________________</div><div class="signature"><strong>CUSTOMER / BUYER SIGNATURE</strong>${p.customerName||"Customer"}<br/>Signature: ______________________________<br/>Date: __________________</div></div>
-  <div class="note"><b>Company record:</b> MAHA E-HOUSING · E-House Property Selling System · Keep this signed document with the official receipt and supporting identification records.</div><div class="footer">MAHA E-HOUSING · Your Home, Your Priority · Official system-generated contract report</div><script>window.print()</script></body></html>`);w.document.close();
+  <div class="note"><b>Company record:</b> MAHA E-HOUSING · E-House Property Selling System · Keep this signed document with the official receipt and supporting identification records.</div><div class="footer">MAHA E-HOUSING · Your Home, Your Priority · Official system-generated contract report</div><script></script></body></html>`);w.document.close();addReportToolbar(w,"Contract",p.paymentId||p.bookingId,p);
 }
 
 function App(){
