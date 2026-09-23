@@ -115,11 +115,29 @@ function App(){
     } catch(e) { setNotice(e.message); }
     finally { setLoading(false); }
   };
-  useEffect(()=>{ if(page==="home" || page==="dashboard" || page==="seller") loadHouses(); },[page,auth?.role]);
+  useEffect(()=>{ 
+    if(!(page==="home" || page==="dashboard" || page==="seller")) return;
+    loadHouses();
+    const refresh = () => { if(document.visibilityState === "visible") loadHouses(); };
+    const interval = setInterval(refresh, 5000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  },[page,auth?.role]);
 
   const filtered=useMemo(()=>houses.filter(h=>
     `${h.title} ${h.location} ${h.description}`.toLowerCase().includes(query.toLowerCase())
   ),[houses,query]);
+  useEffect(()=>{
+    if(selected?.houseId){
+      const fresh=houses.find(h=>Number(h.houseId)===Number(selected.houseId));
+      if(fresh) setSelected(fresh);
+    }
+  },[houses]);
 
   function logout(){
     sessionStorage.removeItem("ehouse_token"); sessionStorage.removeItem("ehouse_user");
@@ -414,7 +432,18 @@ function CustomerDashboard({auth,houses,go,setNotice,setSelected,logout}){
   const setters=[setBookings,setPayments,setSales,setDocs];
   results.forEach((r,i)=>{ if(r.status==="fulfilled") setters[i](Array.isArray(r.value)?r.value:[]); else { setters[i]([]); setNotice(r.reason?.message||"Could not load customer data."); } });
 };
- useEffect(()=>{load()},[]);
+ useEffect(()=>{
+  load();
+  const refresh = () => { if(document.visibilityState === "visible") load(); };
+  const interval = setInterval(refresh, 5000);
+  window.addEventListener("focus", refresh);
+  document.addEventListener("visibilitychange", refresh);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("focus", refresh);
+    document.removeEventListener("visibilitychange", refresh);
+  };
+},[]);
  async function cancel(id){try{await api(`/customer/bookings/${id}/cancel`,{method:"PUT"});setNotice("Booking cancelled.");load()}catch(e){setNotice(e.message)}}
  function bookingPaymentInfo(b){
    if(!b) return {house:null,price:0,paid:0,remaining:0,pending:false};
@@ -450,7 +479,18 @@ function SellerDesk({auth,go,setNotice,logout}){
     else { setters[i]([]); setNotice(r.reason?.message||`Could not load ${labels[i]}.`); }
   });
 };
- useEffect(()=>{load()},[]);
+ useEffect(()=>{
+  load();
+  const refresh = () => { if(document.visibilityState === "visible") load(); };
+  const interval = setInterval(refresh, 5000);
+  window.addEventListener("focus", refresh);
+  document.addEventListener("visibilitychange", refresh);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("focus", refresh);
+    document.removeEventListener("visibilitychange", refresh);
+  };
+},[]);
  function openAdd(){setEditing(null);setForm(emptyHouse);setShowAdd(true)}
  function openEdit(h){setEditing(h.houseId);setForm({...h,price:h.price,bedrooms:h.bedrooms,bathrooms:h.bathrooms,halls:h.halls??0,kitchens:h.kitchens??0});setShowAdd(true)}
  async function save(e){e.preventDefault();try{const body={...form,price:Number(form.price),bedrooms:Number(form.bedrooms),bathrooms:Number(form.bathrooms),halls:Number(form.halls),kitchens:Number(form.kitchens)};if(editing)await api(`/houses/${editing}`,{method:"PUT",body:JSON.stringify(body)});else await api("/houses",{method:"POST",body:JSON.stringify(body)});setNotice(editing?"House updated successfully.":"House published and is now visible to customers.");setShowAdd(false);setEditing(null);setForm(emptyHouse);load()}catch(e){setNotice(e.message)}}
@@ -497,7 +537,18 @@ function AdminDesk({auth,setNotice,go,logout}){
  const [sellerForm,setSellerForm]=useState(emptySeller),[busy,setBusy]=useState(false),[showSeller,setShowSeller]=useState(false),[editingSeller,setEditingSeller]=useState(null),[selectedSeller,setSelectedSeller]=useState(null);
  const [customerForm,setCustomerForm]=useState(emptyCustomer),[showCustomer,setShowCustomer]=useState(false),[editingCustomer,setEditingCustomer]=useState(null);
  async function loadAll(){try{const names=Object.keys(records);const values=await Promise.all(names.map(n=>api(`/management/${n}`)));const next={};names.forEach((n,i)=>next[n]=Array.isArray(values[i])?values[i]:[]);setRecords(next)}catch(e){setNotice(e.message)}}
- useEffect(()=>{loadAll()},[]);
+ useEffect(()=>{
+  loadAll();
+  const refresh = () => { if(document.visibilityState === "visible") loadAll(); };
+  const interval = setInterval(refresh, 5000);
+  window.addEventListener("focus", refresh);
+  document.addEventListener("visibilitychange", refresh);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("focus", refresh);
+    document.removeEventListener("visibilitychange", refresh);
+  };
+},[]);
  function openAddSeller(){setEditingSeller(null);setSellerForm(emptySeller);setShowSeller(true)}
  function openEditSeller(row){setEditingSeller(row.sellerId);setSellerForm({...row,password:""});setShowSeller(true)}
  async function saveSeller(e){e.preventDefault();setBusy(true);try{const body={...sellerForm};if(editingSeller){if(!body.password)body.password="ChangeMe123!";await api(`/management/sellers/${editingSeller}`,{method:"PUT",body:JSON.stringify(body)});setNotice("Seller updated successfully.")}else{await api("/management/sellers",{method:"POST",body:JSON.stringify(body)});setNotice("Seller account created successfully.")}setShowSeller(false);setEditingSeller(null);setSellerForm(emptySeller);await loadAll()}catch(e){setNotice(e.message)}finally{setBusy(false)}}
