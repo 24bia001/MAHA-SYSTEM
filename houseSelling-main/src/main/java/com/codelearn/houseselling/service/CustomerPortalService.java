@@ -16,6 +16,7 @@ import com.codelearn.houseselling.entity.House;
 import com.codelearn.houseselling.entity.Payment;
 import com.codelearn.houseselling.entity.PaymentStatus;
 import com.codelearn.houseselling.entity.Sale;
+import com.codelearn.houseselling.entity.Seller;
 import com.codelearn.houseselling.repository.BookingRepository;
 import com.codelearn.houseselling.repository.CustomerRepository;
 import com.codelearn.houseselling.repository.DocumentRepository;
@@ -27,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -141,7 +143,8 @@ public class CustomerPortalService {
                 .findAll()
                 .stream()
                 .filter(house ->
-                        !saleRepository
+                        !"SOLD_OUT".equalsIgnoreCase(house.getStatus())
+                        && !saleRepository
                                 .existsByHouseHouseIdAndStatus(
                                         house.getHouseId(),
                                         SOLD_STATUS
@@ -163,7 +166,7 @@ public class CustomerPortalService {
             return null;
         }
 
-        if (saleRepository
+        if ("SOLD_OUT".equalsIgnoreCase(house.getStatus()) || saleRepository
                 .existsByHouseHouseIdAndStatus(
                         houseId,
                         SOLD_STATUS
@@ -195,14 +198,14 @@ public class CustomerPortalService {
                                 )
                         );
 
-        if (saleRepository
+        if ("SOLD_OUT".equalsIgnoreCase(house.getStatus()) || saleRepository
                 .existsByHouseHouseIdAndStatus(
                         house.getHouseId(),
                         SOLD_STATUS
                 )) {
 
             throw new IllegalArgumentException(
-                    "House has already been sold"
+                    "House is no longer available for booking"
             );
         }
 
@@ -213,14 +216,15 @@ public class CustomerPortalService {
                 );
 
         if (bookingRepository
-                .existsByHouseHouseIdAndBookingDateAndStatusIn(
+                .existsByHouseHouseIdAndBookingDateAndBookingTimeAndStatusIn(
                         house.getHouseId(),
                         request.getBookingDate(),
+                        request.getBookingTime(),
                         activeStatuses
                 )) {
 
             throw new IllegalArgumentException(
-                    "House already has an active booking on this date"
+                    "House already has an active booking at this date and time"
             );
         }
 
@@ -229,6 +233,10 @@ public class CustomerPortalService {
 
         booking.setBookingDate(
                 request.getBookingDate()
+        );
+
+        booking.setBookingTime(
+                request.getBookingTime()
         );
 
         booking.setStatus(
@@ -334,6 +342,7 @@ public class CustomerPortalService {
         );
     }
 
+    @Transactional
     public PaymentResponse createMyPayment(
             com.codelearn.houseselling.dto.PaymentRequest request) {
 
@@ -354,15 +363,32 @@ public class CustomerPortalService {
         }
 
         if (paymentRepository.existsByBookingBookingIdAndStatus(
-                booking.getBookingId(), PaymentStatus.PAID)) {
-            throw new IllegalArgumentException("This booking has already been paid");
+                booking.getBookingId(), PaymentStatus.PENDING)) {
+            throw new IllegalArgumentException("A payment is already awaiting seller receipt confirmation for this booking");
+        }
+
+        double paid = paymentRepository.findByBookingBookingIdAndStatus(
+                        booking.getBookingId(), PaymentStatus.PAID)
+                .stream()
+                .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                .sum();
+        double price = booking.getHouse().getPrice();
+        double remaining = Math.max(0d, price - paid);
+
+        if (remaining <= 0.0) {
+            throw new IllegalArgumentException("This house has already been fully paid");
+        }
+
+        if (request.getAmount() > remaining) {
+            throw new IllegalArgumentException(
+                    "Payment cannot exceed the remaining house balance of " + remaining);
         }
 
         Payment payment = new Payment();
         payment.setAmount(request.getAmount());
         payment.setPaymentDate(request.getPaymentDate());
         payment.setPaymentMethod(request.getPaymentMethod());
-        payment.setStatus(PaymentStatus.PAID);
+        payment.setStatus(PaymentStatus.PENDING);
         payment.setBooking(booking);
 
         return convertPaymentToResponse(paymentRepository.save(payment));
@@ -520,6 +546,7 @@ public class CustomerPortalService {
         response.setPrice(
                 house.getPrice()
         );
+        response.setStatus(house.getStatus());
 
         response.setBedrooms(
                 house.getBedrooms()
@@ -528,6 +555,8 @@ public class CustomerPortalService {
         response.setBathrooms(
                 house.getBathrooms()
         );
+        response.setHalls(house.getHalls());
+        response.setKitchens(house.getKitchens());
 
         response.setImage(house.getImage());
 
@@ -541,6 +570,15 @@ public class CustomerPortalService {
             response.setSellerName(
                     house.getSeller()
                             .getName()
+            );
+            response.setSellerEmail(
+                    house.getSeller().getEmail()
+            );
+            response.setSellerPhone(
+                    house.getSeller().getPhone()
+            );
+            response.setSellerImage(
+                    house.getSeller().getImage()
             );
         }
 
@@ -559,6 +597,10 @@ public class CustomerPortalService {
 
         response.setBookingDate(
                 booking.getBookingDate()
+        );
+
+        response.setBookingTime(
+                booking.getBookingTime()
         );
 
         response.setStatus(
@@ -597,49 +639,62 @@ public class CustomerPortalService {
     private PaymentResponse convertPaymentToResponse(
             Payment payment) {
 
-        PaymentResponse response =
-                new PaymentResponse();
-
-        response.setPaymentId(
-                payment.getPaymentId()
-        );
-
-        response.setAmount(
-                payment.getAmount()
-        );
-
-        response.setPaymentDate(
-                payment.getPaymentDate()
-        );
-
-        response.setPaymentMethod(
-                payment.getPaymentMethod()
-        );
-
-        response.setStatus(
-                payment.getStatus()
-        );
+        PaymentResponse response = new PaymentResponse();
+        response.setPaymentId(payment.getPaymentId());
+        response.setAmount(payment.getAmount());
+        response.setPaymentDate(payment.getPaymentDate());
+        response.setPaymentMethod(payment.getPaymentMethod());
+        response.setStatus(payment.getStatus());
 
         if (payment.getBooking() != null) {
+            Booking booking = payment.getBooking();
+            response.setBookingId(booking.getBookingId());
+            response.setBookingDate(booking.getBookingDate());
+            response.setBookingTime(booking.getBookingTime());
+            if (booking.getStatus() != null) response.setBookingStatus(booking.getStatus().name());
 
-            response.setBookingId(
-                    payment.getBooking()
-                            .getBookingId()
-            );
+            if (booking.getCustomer() != null) {
+                Customer customer = booking.getCustomer();
+                response.setCustomerId(customer.getCustomerId());
+                response.setCustomerName(customer.getName());
+                response.setCustomerEmail(customer.getEmail());
+                response.setCustomerPhone(customer.getPhone());
+                response.setCustomerAddress(customer.getAddress());
+                response.setCustomerNida(customer.getNida());
+                response.setCustomerImage(customer.getImage());
+            }
 
-            response.setBookingDate(
-                    payment.getBooking()
-                            .getBookingDate()
-            );
+            House house = booking.getHouse();
+            if (house != null) {
+                response.setHouseId(house.getHouseId());
+                response.setHouseTitle(house.getTitle());
+                response.setHousePrice(house.getPrice());
+                response.setHouseStatus(house.getStatus());
+                response.setHouseLocation(house.getLocation());
+                response.setHouseDescription(house.getDescription());
+                response.setBedrooms(house.getBedrooms());
+                response.setBathrooms(house.getBathrooms());
+                response.setHalls(house.getHalls());
+                response.setKitchens(house.getKitchens());
+                response.setHouseImage(house.getImage());
+                if (house.getSeller() != null) {
+                    Seller seller = house.getSeller();
+                    response.setSellerId(seller.getSellerId());
+                    response.setSellerName(seller.getName());
+                    response.setSellerImage(seller.getImage());
+                    response.setSellerEmail(seller.getEmail());
+                    response.setSellerPhone(seller.getPhone());
+                    response.setSellerAddress(seller.getAddress());
+                    response.setSellerNida(seller.getNida());
+                }
 
-            if (payment.getBooking()
-                    .getStatus() != null) {
-
-                response.setBookingStatus(
-                        payment.getBooking()
-                                .getStatus()
-                                .name()
-                );
+                double totalPaid = paymentRepository
+                        .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                        .stream()
+                        .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                        .sum();
+                response.setTotalPaid(totalPaid);
+                response.setRemainingAmount(Math.max(0d, house.getPrice() - totalPaid));
             }
         }
 

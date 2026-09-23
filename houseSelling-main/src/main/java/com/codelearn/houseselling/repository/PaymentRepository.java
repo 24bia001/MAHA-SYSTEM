@@ -15,6 +15,11 @@ public interface PaymentRepository
             PaymentStatus status
     );
 
+    List<Payment> findByBookingBookingIdAndStatus(
+            Long bookingId,
+            PaymentStatus status
+    );
+
     boolean existsByBookingBookingIdAndStatusAndPaymentIdNot(
             Long bookingId,
             PaymentStatus status,

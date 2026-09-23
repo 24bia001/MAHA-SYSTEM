@@ -556,6 +556,15 @@ public class ManagementService {
                     house.getSeller()
                             .getName()
             );
+            response.setSellerEmail(
+                    house.getSeller().getEmail()
+            );
+            response.setSellerPhone(
+                    house.getSeller().getPhone()
+            );
+            response.setSellerImage(
+                    house.getSeller().getImage()
+            );
         }
 
         return response;

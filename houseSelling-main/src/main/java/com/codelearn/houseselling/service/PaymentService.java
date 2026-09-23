@@ -7,10 +7,16 @@ import com.codelearn.houseselling.entity.BookingStatus;
 import com.codelearn.houseselling.entity.Payment;
 import com.codelearn.houseselling.entity.PaymentStatus;
 import com.codelearn.houseselling.entity.Seller;
+import com.codelearn.houseselling.entity.House;
+import com.codelearn.houseselling.entity.Sale;
+import com.codelearn.houseselling.entity.Customer;
+import com.codelearn.houseselling.repository.SaleRepository;
+import com.codelearn.houseselling.repository.HouseRepository;
 import com.codelearn.houseselling.repository.BookingRepository;
 import com.codelearn.houseselling.repository.PaymentRepository;
 import com.codelearn.houseselling.repository.SellerRepository;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,11 +29,15 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final SellerRepository sellerRepository;
+    private final SaleRepository saleRepository;
+    private final HouseRepository houseRepository;
 
     public PaymentService(
             PaymentRepository paymentRepository,
             BookingRepository bookingRepository,
-            SellerRepository sellerRepository) {
+            SellerRepository sellerRepository,
+            SaleRepository saleRepository,
+            HouseRepository houseRepository) {
 
         this.paymentRepository =
                 paymentRepository;
@@ -37,90 +47,35 @@ public class PaymentService {
 
         this.sellerRepository =
                 sellerRepository;
+
+        this.saleRepository =
+                saleRepository;
+
+        this.houseRepository =
+                houseRepository;
     }
 
+    @Transactional
     public PaymentResponse createPayment(
             PaymentRequest request) {
 
-        Seller seller =
-                getLoggedInSeller();
+        Seller seller = getLoggedInSeller();
+        Booking booking = getSellerBooking(request.getBookingId(), seller);
+        validateConfirmed(booking);
 
-        Booking booking =
-                bookingRepository
-                        .findById(
-                                request.getBookingId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Booking not found with id: "
-                                                + request.getBookingId()
-                                )
-                        );
+        double remaining = getRemainingAmount(booking);
+        validateAmount(request.getAmount(), remaining);
 
-        if (!booking.getHouse()
-                .getSeller()
-                .getSellerId()
-                .equals(
-                        seller.getSellerId()
-                )) {
+        Payment payment = new Payment();
+        payment.setAmount(request.getAmount());
+        payment.setPaymentDate(request.getPaymentDate());
+        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setBooking(booking);
 
-            throw new AccessDeniedException(
-                    "You cannot create a payment for another seller's booking"
-            );
-        }
-
-        if (booking.getStatus()
-                != BookingStatus.CONFIRMED) {
-
-            throw new IllegalArgumentException(
-                    "Payment can only be recorded for a CONFIRMED booking"
-            );
-        }
-
-        if (request.getStatus()
-                == PaymentStatus.PAID
-                && paymentRepository
-                .existsByBookingBookingIdAndStatus(
-                        booking.getBookingId(),
-                        PaymentStatus.PAID
-                )) {
-
-            throw new IllegalArgumentException(
-                    "This booking already has a PAID payment"
-            );
-        }
-
-        Payment payment =
-                new Payment();
-
-        payment.setAmount(
-                request.getAmount()
-        );
-
-        payment.setPaymentDate(
-                request.getPaymentDate()
-        );
-
-        payment.setPaymentMethod(
-                request.getPaymentMethod()
-        );
-
-        payment.setStatus(
-                request.getStatus()
-        );
-
-        payment.setBooking(
-                booking
-        );
-
-        Payment savedPayment =
-                paymentRepository.save(
-                        payment
-                );
-
-        return convertToResponse(
-                savedPayment
-        );
+        Payment saved = paymentRepository.save(payment);
+        markHouseSoldOutAndMaybeCompleteSale(booking);
+        return convertToResponse(saved);
     }
 
     public List<PaymentResponse>
@@ -161,107 +116,80 @@ public class PaymentService {
         );
     }
 
+    @Transactional
     public PaymentResponse updatePayment(
             Long id,
             PaymentRequest request) {
 
-        Seller seller =
-                getLoggedInSeller();
+        Seller seller = getLoggedInSeller();
+        Payment existingPayment = paymentRepository
+                .findByPaymentIdAndBookingHouseSellerSellerId(id, seller.getSellerId())
+                .orElse(null);
 
-        Payment existingPayment =
-                paymentRepository
-                        .findByPaymentIdAndBookingHouseSellerSellerId(
-                                id,
-                                seller.getSellerId()
-                        )
-                        .orElse(null);
-
-        if (existingPayment == null) {
-            return null;
+        if (existingPayment == null) return null;
+        if (existingPayment.getStatus() == PaymentStatus.PAID) {
+            throw new IllegalArgumentException("PAID payment cannot be modified");
         }
 
-        if (existingPayment.getStatus()
-                == PaymentStatus.PAID) {
+        Booking booking = getSellerBooking(request.getBookingId(), seller);
+        validateConfirmed(booking);
 
-            throw new IllegalArgumentException(
-                    "PAID payment cannot be modified"
-            );
+        double paidExcludingThis = paymentRepository
+                .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                .stream()
+                .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                .sum();
+        double remaining = Math.max(0d, booking.getHouse().getPrice() - paidExcludingThis);
+        validateAmount(request.getAmount(), remaining);
+
+        existingPayment.setAmount(request.getAmount());
+        existingPayment.setPaymentDate(request.getPaymentDate());
+        existingPayment.setPaymentMethod(request.getPaymentMethod());
+        existingPayment.setStatus(PaymentStatus.PAID);
+        existingPayment.setBooking(booking);
+
+        Payment updated = paymentRepository.save(existingPayment);
+        markHouseSoldOutAndMaybeCompleteSale(booking);
+        return convertToResponse(updated);
+    }
+
+    /**
+     * Seller-only confirmation of a payment submitted by a customer.
+     * The seller confirms the existing amount; the client cannot change it.
+     */
+    @Transactional
+    public PaymentResponse receivePayment(Long id) {
+        Seller seller = getLoggedInSeller();
+        Payment payment = paymentRepository
+                .findByPaymentIdAndBookingHouseSellerSellerId(id, seller.getSellerId())
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found for this seller"));
+
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            return convertToResponse(payment);
         }
 
-        Booking booking =
-                bookingRepository
-                        .findById(
-                                request.getBookingId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Booking not found with id: "
-                                                + request.getBookingId()
-                                )
-                        );
-
-        if (!booking.getHouse()
-                .getSeller()
-                .getSellerId()
-                .equals(
-                        seller.getSellerId()
-                )) {
-
-            throw new AccessDeniedException(
-                    "You cannot use another seller's booking"
-            );
+        Booking booking = payment.getBooking();
+        if (booking == null) {
+            throw new IllegalArgumentException("Payment is not linked to a booking");
         }
+        validateConfirmed(booking);
 
-        if (booking.getStatus()
-                != BookingStatus.CONFIRMED) {
+        double paidBefore = paymentRepository
+                .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                .stream()
+                .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                .sum();
+        validateAmount(payment.getAmount(), Math.max(0d, booking.getHouse().getPrice() - paidBefore));
 
-            throw new IllegalArgumentException(
-                    "Payment can only be recorded for a CONFIRMED booking"
-            );
-        }
+        payment.setStatus(PaymentStatus.PAID);
+        Payment saved = paymentRepository.save(payment);
 
-        if (request.getStatus()
-                == PaymentStatus.PAID
-                && paymentRepository
-                .existsByBookingBookingIdAndStatusAndPaymentIdNot(
-                        booking.getBookingId(),
-                        PaymentStatus.PAID,
-                        id
-                )) {
+        // A received payment reserves the house and explicitly keeps the booking approved.
+        booking.setStatus(BookingStatus.CONFIRMED);
+        bookingRepository.save(booking);
 
-            throw new IllegalArgumentException(
-                    "This booking already has another PAID payment"
-            );
-        }
-
-        existingPayment.setAmount(
-                request.getAmount()
-        );
-
-        existingPayment.setPaymentDate(
-                request.getPaymentDate()
-        );
-
-        existingPayment.setPaymentMethod(
-                request.getPaymentMethod()
-        );
-
-        existingPayment.setStatus(
-                request.getStatus()
-        );
-
-        existingPayment.setBooking(
-                booking
-        );
-
-        Payment updatedPayment =
-                paymentRepository.save(
-                        existingPayment
-                );
-
-        return convertToResponse(
-                updatedPayment
-        );
+        markHouseSoldOutAndMaybeCompleteSale(booking);
+        return convertToResponse(saved);
     }
 
     public boolean deletePayment(
@@ -327,52 +255,124 @@ public class PaymentService {
     private PaymentResponse convertToResponse(
             Payment payment) {
 
-        PaymentResponse response =
-                new PaymentResponse();
+        PaymentResponse response = new PaymentResponse();
+        response.setPaymentId(payment.getPaymentId());
+        response.setAmount(payment.getAmount());
+        response.setPaymentDate(payment.getPaymentDate());
+        response.setPaymentMethod(payment.getPaymentMethod());
+        response.setStatus(payment.getStatus());
 
-        response.setPaymentId(
-                payment.getPaymentId()
-        );
-
-        response.setAmount(
-                payment.getAmount()
-        );
-
-        response.setPaymentDate(
-                payment.getPaymentDate()
-        );
-
-        response.setPaymentMethod(
-                payment.getPaymentMethod()
-        );
-
-        response.setStatus(
-                payment.getStatus()
-        );
-
-        if (payment.getBooking() != null) {
-
-            response.setBookingId(
-                    payment.getBooking()
-                            .getBookingId()
-            );
-
-            response.setBookingDate(
-                    payment.getBooking()
-                            .getBookingDate()
-            );
-
-            if (payment.getBooking()
-                    .getStatus() != null) {
-
-                response.setBookingStatus(
-                        payment.getBooking()
-                                .getStatus()
-                                .name()
-                );
+        Booking booking = payment.getBooking();
+        if (booking != null) {
+            response.setBookingId(booking.getBookingId());
+            response.setBookingDate(booking.getBookingDate());
+            response.setBookingTime(booking.getBookingTime());
+            if (booking.getStatus() != null) response.setBookingStatus(booking.getStatus().name());
+            if (booking.getCustomer() != null) {
+                Customer customer = booking.getCustomer();
+                response.setCustomerId(customer.getCustomerId());
+                response.setCustomerName(customer.getName());
+                response.setCustomerEmail(customer.getEmail());
+                response.setCustomerPhone(customer.getPhone());
+                response.setCustomerAddress(customer.getAddress());
+                response.setCustomerNida(customer.getNida());
+                response.setCustomerImage(customer.getImage());
+            }
+            House house = booking.getHouse();
+            if (house != null) {
+                response.setHouseId(house.getHouseId());
+                response.setHouseTitle(house.getTitle());
+                response.setHousePrice(house.getPrice());
+                response.setHouseStatus(house.getStatus());
+                response.setHouseLocation(house.getLocation());
+                response.setHouseDescription(house.getDescription());
+                response.setBedrooms(house.getBedrooms());
+                response.setBathrooms(house.getBathrooms());
+                response.setHalls(house.getHalls());
+                response.setKitchens(house.getKitchens());
+                response.setHouseImage(house.getImage());
+                if (house.getSeller() != null) {
+                    Seller houseSeller = house.getSeller();
+                    response.setSellerId(houseSeller.getSellerId());
+                    response.setSellerName(houseSeller.getName());
+                    response.setSellerImage(houseSeller.getImage());
+                    response.setSellerEmail(houseSeller.getEmail());
+                    response.setSellerPhone(houseSeller.getPhone());
+                    response.setSellerAddress(houseSeller.getAddress());
+                    response.setSellerNida(houseSeller.getNida());
+                }
+                double totalPaid = paymentRepository
+                        .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                        .stream()
+                        .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                        .sum();
+                response.setTotalPaid(totalPaid);
+                response.setRemainingAmount(Math.max(0d, house.getPrice() - totalPaid));
             }
         }
-
         return response;
     }
+
+    private Booking getSellerBooking(Long bookingId, Seller seller) {
+        return bookingRepository.findByBookingIdAndHouseSellerSellerId(bookingId, seller.getSellerId())
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found for this seller"));
+    }
+
+    private void validateConfirmed(Booking booking) {
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Payment can only be recorded for a CONFIRMED booking");
+        }
+    }
+
+    private void validateAmount(Double amount, double remaining) {
+        if (amount == null || amount <= 0) {
+            throw new IllegalArgumentException("Payment amount must be greater than zero");
+        }
+        if (amount > remaining + 0.000001d) {
+            throw new IllegalArgumentException("Payment cannot exceed the remaining balance of " + remaining);
+        }
+    }
+
+    private double getRemainingAmount(Booking booking) {
+        double paid = paymentRepository
+                .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                .stream()
+                .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                .sum();
+        return Math.max(0d, booking.getHouse().getPrice() - paid);
+    }
+
+    private void markHouseSoldOutAndMaybeCompleteSale(Booking booking) {
+        House house = booking.getHouse();
+        house.setStatus("SOLD_OUT");
+        houseRepository.save(house);
+
+        List<BookingStatus> activeStatuses = List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED);
+        List<Booking> otherBookings = bookingRepository
+                .findByHouseHouseIdAndStatusIn(house.getHouseId(), activeStatuses);
+        for (Booking other : otherBookings) {
+            if (!other.getBookingId().equals(booking.getBookingId())) {
+                other.setStatus(BookingStatus.CANCELLED);
+            }
+        }
+        bookingRepository.saveAll(otherBookings);
+
+        double totalPaid = paymentRepository
+                .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                .stream()
+                .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                .sum();
+
+        if (totalPaid + 0.000001d >= house.getPrice()
+                && !saleRepository.existsByHouseHouseIdAndStatus(house.getHouseId(), "SOLD")) {
+            Sale sale = new Sale();
+            sale.setSalePrice(house.getPrice());
+            sale.setSaleDate(java.time.LocalDate.now());
+            sale.setStatus("SOLD");
+            sale.setHouse(house);
+            sale.setCustomer(booking.getCustomer());
+            saleRepository.save(sale);
+        }
+    }
+
 }

@@ -102,7 +102,7 @@ public class BookingService {
             );
         }
 
-        if (saleRepository
+        if ("SOLD_OUT".equalsIgnoreCase(house.getStatus()) || saleRepository
                 .existsByHouseHouseIdAndStatus(
                         house.getHouseId(),
                         SOLD_STATUS
@@ -126,16 +126,17 @@ public class BookingService {
 
             boolean duplicate =
                     bookingRepository
-                            .existsByHouseHouseIdAndBookingDateAndStatusIn(
+                            .existsByHouseHouseIdAndBookingDateAndBookingTimeAndStatusIn(
                                     house.getHouseId(),
                                     request.getBookingDate(),
+                                    request.getBookingTime(),
                                     activeStatuses
                             );
 
             if (duplicate) {
 
                 throw new IllegalArgumentException(
-                        "House already has an active booking on this date"
+                        "House already has an active booking at this date and time"
                 );
             }
         }
@@ -145,6 +146,10 @@ public class BookingService {
 
         booking.setBookingDate(
                 request.getBookingDate()
+        );
+
+        booking.setBookingTime(
+                request.getBookingTime()
         );
 
         booking.setStatus(
@@ -282,7 +287,7 @@ public class BookingService {
             );
         }
 
-        if (saleRepository
+        if ("SOLD_OUT".equalsIgnoreCase(house.getStatus()) || saleRepository
                 .existsByHouseHouseIdAndStatus(
                         house.getHouseId(),
                         SOLD_STATUS
@@ -306,9 +311,10 @@ public class BookingService {
 
             boolean duplicate =
                     bookingRepository
-                            .existsByHouseHouseIdAndBookingDateAndStatusInAndBookingIdNot(
+                            .existsByHouseHouseIdAndBookingDateAndBookingTimeAndStatusInAndBookingIdNot(
                                     house.getHouseId(),
                                     request.getBookingDate(),
+                                    request.getBookingTime(),
                                     activeStatuses,
                                     id
                             );
@@ -316,13 +322,17 @@ public class BookingService {
             if (duplicate) {
 
                 throw new IllegalArgumentException(
-                        "House already has another active booking on this date"
+                        "House already has another active booking at this date and time"
                 );
             }
         }
 
         existingBooking.setBookingDate(
                 request.getBookingDate()
+        );
+
+        existingBooking.setBookingTime(
+                request.getBookingTime()
         );
 
         existingBooking.setStatus(
@@ -522,6 +532,10 @@ public class BookingService {
 
         response.setBookingDate(
                 booking.getBookingDate()
+        );
+
+        response.setBookingTime(
+                booking.getBookingTime()
         );
 
         response.setStatus(

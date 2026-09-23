@@ -59,7 +59,8 @@ public class SecurityConfig {
                                 // =========================
 
                                 .requestMatchers(
-                                        "/api/auth/**"
+                                        "/api/auth/**",
+                                        "/api/health"
                                 )
                                 .permitAll()
 
@@ -72,6 +73,11 @@ public class SecurityConfig {
                                         "/api/sellers"
                                 )
                                 .hasRole("ADMIN")
+
+                                // Seller house management
+                                .requestMatchers(HttpMethod.POST, "/api/houses").hasRole("SELLER")
+                                .requestMatchers(HttpMethod.PUT, "/api/houses/{id}").hasRole("SELLER")
+                                .requestMatchers(HttpMethod.DELETE, "/api/houses/{id}").hasRole("SELLER")
 
                                 // Public property catalogue for the landing page
                                 .requestMatchers(
@@ -135,15 +141,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*"
-        ));
+        // The API uses JWT Authorization headers rather than cookies.
+        // This allows the local frontend and deployed frontend to call the API.
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();

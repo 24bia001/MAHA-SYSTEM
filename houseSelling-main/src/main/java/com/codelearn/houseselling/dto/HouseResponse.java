@@ -7,10 +7,16 @@ public class HouseResponse {
     private String location;
     private String description;
     private Double price;
+    private String status;
     private Integer bedrooms;
     private Integer bathrooms;
+    private Integer halls;
+    private Integer kitchens;
     private Long sellerId;
     private String sellerName;
+    private String sellerEmail;
+    private String sellerPhone;
+    private String sellerImage;
 
     private String image;
 
@@ -62,6 +68,14 @@ public class HouseResponse {
         this.price = price;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Integer getBedrooms() {
         return bedrooms;
     }
@@ -78,12 +92,42 @@ public class HouseResponse {
         this.bathrooms = bathrooms;
     }
 
+    public Integer getHalls() { return halls; }
+    public void setHalls(Integer halls) { this.halls = halls; }
+
+    public Integer getKitchens() { return kitchens; }
+    public void setKitchens(Integer kitchens) { this.kitchens = kitchens; }
+
     public Long getSellerId() {
         return sellerId;
     }
 
     public void setSellerId(Long sellerId) {
         this.sellerId = sellerId;
+    }
+
+    public String getSellerEmail() {
+        return sellerEmail;
+    }
+
+    public void setSellerEmail(String sellerEmail) {
+        this.sellerEmail = sellerEmail;
+    }
+
+    public String getSellerPhone() {
+        return sellerPhone;
+    }
+
+    public void setSellerPhone(String sellerPhone) {
+        this.sellerPhone = sellerPhone;
+    }
+
+    public String getSellerImage() {
+        return sellerImage;
+    }
+
+    public void setSellerImage(String sellerImage) {
+        this.sellerImage = sellerImage;
     }
 
     public String getSellerName() {

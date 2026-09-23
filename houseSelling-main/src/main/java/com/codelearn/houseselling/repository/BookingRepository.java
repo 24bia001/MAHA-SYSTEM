@@ -17,6 +17,21 @@ public interface BookingRepository
             List<BookingStatus> statuses
     );
 
+    boolean existsByHouseHouseIdAndBookingDateAndBookingTimeAndStatusIn(
+            Long houseId,
+            LocalDate bookingDate,
+            java.time.LocalTime bookingTime,
+            List<BookingStatus> statuses
+    );
+
+    boolean existsByHouseHouseIdAndBookingDateAndBookingTimeAndStatusInAndBookingIdNot(
+            Long houseId,
+            LocalDate bookingDate,
+            java.time.LocalTime bookingTime,
+            List<BookingStatus> statuses,
+            Long bookingId
+    );
+
     boolean existsByHouseHouseIdAndBookingDateAndStatusInAndBookingIdNot(
             Long houseId,
             LocalDate bookingDate,

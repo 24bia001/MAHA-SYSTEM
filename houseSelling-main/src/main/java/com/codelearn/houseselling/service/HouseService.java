@@ -71,8 +71,11 @@ public class HouseService {
         house.setBathrooms(
                 request.getBathrooms()
         );
+        house.setHalls(request.getHalls());
+        house.setKitchens(request.getKitchens());
 
         house.setImage(request.getImage());
+        house.setStatus("AVAILABLE");
 
         house.setSeller(
                 seller
@@ -113,6 +116,7 @@ public class HouseService {
         // Public/customer catalogue: show every house that is not sold.
         return houseRepository.findAll()
                 .stream()
+                .filter(house -> !"SOLD_OUT".equalsIgnoreCase(house.getStatus()))
                 .filter(house -> !saleRepository.existsByHouseHouseIdAndStatus(
                         house.getHouseId(), SOLD_STATUS))
                 .map(this::convertToResponse)
@@ -140,7 +144,7 @@ public class HouseService {
                     .orElse(null);
         } else {
             house = houseRepository.findById(id).orElse(null);
-            if (house != null && saleRepository.existsByHouseHouseIdAndStatus(id, SOLD_STATUS)) {
+            if (house != null && ("SOLD_OUT".equalsIgnoreCase(house.getStatus()) || saleRepository.existsByHouseHouseIdAndStatus(id, SOLD_STATUS))) {
                 house = null;
             }
         }
@@ -201,6 +205,8 @@ public class HouseService {
         house.setBathrooms(
                 request.getBathrooms()
         );
+        house.setHalls(request.getHalls());
+        house.setKitchens(request.getKitchens());
 
         house.setImage(request.getImage());
 
@@ -302,6 +308,7 @@ public class HouseService {
         response.setPrice(
                 house.getPrice()
         );
+        response.setStatus(house.getStatus());
 
         response.setBedrooms(
                 house.getBedrooms()
@@ -310,6 +317,8 @@ public class HouseService {
         response.setBathrooms(
                 house.getBathrooms()
         );
+        response.setHalls(house.getHalls());
+        response.setKitchens(house.getKitchens());
 
         response.setImage(house.getImage());
 
@@ -323,6 +332,15 @@ public class HouseService {
             response.setSellerName(
                     house.getSeller()
                             .getName()
+            );
+            response.setSellerEmail(
+                    house.getSeller().getEmail()
+            );
+            response.setSellerPhone(
+                    house.getSeller().getPhone()
+            );
+            response.setSellerImage(
+                    house.getSeller().getImage()
             );
         }
 

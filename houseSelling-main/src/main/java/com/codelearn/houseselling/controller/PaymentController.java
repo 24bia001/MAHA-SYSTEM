@@ -67,6 +67,13 @@ public class PaymentController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}/receive")
+    public ResponseEntity<PaymentResponse> receivePayment(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(paymentService.receivePayment(id));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<PaymentResponse>
     updatePayment(

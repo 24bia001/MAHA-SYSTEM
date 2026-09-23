@@ -17,6 +17,9 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
+
     private SecretKey getSigningKey() {
 
         byte[] keyBytes =
@@ -31,6 +34,12 @@ public class JwtService {
 
         Date now = new Date();
 
+        Date expiration =
+                new Date(
+                        now.getTime()
+                                + jwtExpiration
+                );
+
         return Jwts.builder()
                 .subject(email)
                 .claim(
@@ -38,6 +47,7 @@ public class JwtService {
                         role.toUpperCase()
                 )
                 .issuedAt(now)
+                .expiration(expiration)
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -70,7 +80,10 @@ public class JwtService {
 
             return email.equals(
                     claims.getSubject()
-            );
+            )
+                    && claims
+                    .getExpiration()
+                    .after(new Date());
 
         } catch (
                 JwtException

@@ -115,7 +115,7 @@ public class SaleService {
         }
 
         Booking paidConfirmedBooking =
-                findPaidConfirmedBooking(
+                findFullyPaidConfirmedBooking(
                         customer.getCustomerId(),
                         house.getHouseId()
                 );
@@ -142,6 +142,9 @@ public class SaleService {
         sale.setCustomer(
                 customer
         );
+
+        house.setStatus("SOLD_OUT");
+        houseRepository.save(house);
 
         Sale savedSale =
                 saleRepository.save(
@@ -258,7 +261,7 @@ public class SaleService {
                                 )
                         );
 
-        findPaidConfirmedBooking(
+        findFullyPaidConfirmedBooking(
                 customer.getCustomerId(),
                 house.getHouseId()
         );
@@ -330,7 +333,7 @@ public class SaleService {
     // FIND CONFIRMED + PAID BOOKING
     // =========================
 
-    private Booking findPaidConfirmedBooking(
+    private Booking findFullyPaidConfirmedBooking(
             Long customerId,
             Long houseId) {
 
@@ -345,14 +348,13 @@ public class SaleService {
         for (Booking booking :
                 confirmedBookings) {
 
-            boolean paid =
-                    paymentRepository
-                            .existsByBookingBookingIdAndStatus(
-                                    booking.getBookingId(),
-                                    PaymentStatus.PAID
-                            );
+            double paid = paymentRepository
+                    .findByBookingBookingIdAndStatus(booking.getBookingId(), PaymentStatus.PAID)
+                    .stream()
+                    .mapToDouble(p -> p.getAmount() == null ? 0d : p.getAmount())
+                    .sum();
 
-            if (paid) {
+            if (booking.getHouse() != null && paid + 0.000001d >= booking.getHouse().getPrice()) {
                 return booking;
             }
         }

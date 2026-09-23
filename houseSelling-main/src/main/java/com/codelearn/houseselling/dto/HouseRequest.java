@@ -3,6 +3,7 @@ package com.codelearn.houseselling.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public class HouseRequest {
 
@@ -27,7 +28,21 @@ public class HouseRequest {
     @Positive(message = "Bathrooms must be greater than zero")
     private Integer bathrooms;
 
+    @NotNull(message = "Halls are required")
+    @PositiveOrZero(message = "Halls cannot be negative")
+    private Integer halls;
+
+    @NotNull(message = "Kitchens are required")
+    @PositiveOrZero(message = "Kitchens cannot be negative")
+    private Integer kitchens;
+
     private String image;
+
+    public Integer getHalls() { return halls; }
+    public void setHalls(Integer halls) { this.halls = halls; }
+
+    public Integer getKitchens() { return kitchens; }
+    public void setKitchens(Integer kitchens) { this.kitchens = kitchens; }
 
     public String getImage() {
         return image;

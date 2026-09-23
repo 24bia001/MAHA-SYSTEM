@@ -1046,3 +1046,63 @@ tbody td:last-child{border-right:1px solid #e6e7e0!important;border-radius:0 10p
   .houseActions{justify-content:flex-end}
   .personActions{flex-wrap:nowrap!important}
 }
+
+/* Premium house-viewing and seller details */
+.sellerProfileCard{margin-top:28px;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,#fffdf8,#f7f7f1);display:flex;align-items:center;gap:14px;box-shadow:0 12px 35px rgba(10,31,23,.05)}
+.sellerAvatarWrap{width:58px;height:58px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#0b3b2d,#c7a56a);display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px;flex:0 0 auto;border:3px solid #fff;box-shadow:0 5px 16px rgba(0,0,0,.12)}
+.sellerAvatarWrap img{width:100%;height:100%;object-fit:cover}
+.sellerProfileText{display:flex;flex-direction:column;min-width:0;gap:3px;flex:1}
+.sellerProfileText .eyebrow{font-size:8px;letter-spacing:1.6px;margin:0}
+.sellerProfileText strong{font-size:16px;color:var(--ink)}
+.sellerProfileText small{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.verifiedPill{font-size:8px;font-weight:800;letter-spacing:.8px;color:#176943;background:#e5f5ea;border:1px solid #c8e5d1;border-radius:999px;padding:7px 9px;white-space:nowrap}
+.premiumBookingPanel{margin-top:18px!important;padding:22px!important;background:linear-gradient(145deg,#fff,#fafaf5);box-shadow:0 18px 45px rgba(10,31,23,.07)}
+.bookingHeading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}
+.bookingHeading>div{display:grid;grid-template-columns:30px 1fr;column-gap:10px;align-items:center}
+.bookingHeading b{font-size:16px;grid-column:2}
+.bookingHeading small{grid-column:2;color:var(--muted);font-size:10px;line-height:1.5}
+.bookingIcon{grid-row:1 / span 2;width:30px;height:30px;border-radius:9px;background:#e7f1eb;color:#0b5b3e;display:grid;place-items:center;font-weight:800}
+.secureLabel{font-size:8px;font-weight:800;letter-spacing:1px;color:#8b7350;background:#f4ecdc;border:1px solid #ead9b9;padding:7px 9px;border-radius:999px;white-space:nowrap}
+.bookingFields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:5px}
+.bookingFields label{display:grid;gap:7px}
+.bookingFields label>span{font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:var(--muted)}
+.bookingFields input{width:100%;box-sizing:border-box}
+.bookingSummary{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#f4f6f1;border-radius:8px;font-size:10px;color:var(--muted)}
+.bookingSummary b{color:var(--ink);font-size:10px}
+.bookingSubmit{width:100%;margin-top:2px}
+.bookingHint{font-size:9px!important;color:var(--muted);line-height:1.5}
+.successOverlay{position:fixed;inset:0;background:rgba(4,24,17,.58);backdrop-filter:blur(7px);z-index:100;display:grid;place-items:center;padding:24px;animation:fadeIn .2s ease both}
+.successCard{width:min(560px,100%);background:#fff;border:1px solid rgba(212,175,98,.35);border-radius:22px;padding:38px;box-shadow:0 30px 90px rgba(0,0,0,.25);text-align:center;animation:successPop .35s cubic-bezier(.2,.8,.2,1) both}
+.successMark{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;background:linear-gradient(135deg,#0b5b3e,#1c7b58);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800;box-shadow:0 12px 30px rgba(11,91,62,.25)}
+.successCard .eyebrow{color:#9a7d4f}
+.successCard h2{font-size:42px;letter-spacing:-1.5px;margin:10px 0 8px}
+.successCard>p{color:var(--muted);line-height:1.7;font-size:13px;max-width:440px;margin:0 auto 22px}
+.successDetails{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left;margin-bottom:22px}
+.successDetails div{background:#fafaf6;padding:13px}
+.successDetails small{display:block;font-size:8px;letter-spacing:1px;color:var(--muted);font-weight:800;margin-bottom:5px}
+.successDetails b{font-size:11px;color:var(--ink);overflow-wrap:anywhere}
+.successActions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.successActions .primaryBtn,.successActions .outlineBtn{min-width:170px}
+@keyframes successPop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){.sellerProfileCard{align-items:flex-start}.verifiedPill{margin-left:auto}.bookingFields{grid-template-columns:1fr}.bookingHeading{display:block}.secureLabel{display:inline-block;margin-top:12px}.bookingSummary{display:block}.bookingSummary b{display:block;margin-top:5px}.successCard{padding:28px 20px}.successCard h2{font-size:34px}.successDetails{grid-template-columns:1fr}.successActions{display:grid}.successActions .primaryBtn,.successActions .outlineBtn{width:100%}}
+
+/* Payment and sold-out workflow */
+.paymentSub{display:block;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.5}.paymentRow{min-height:72px}.paidMark{font-size:10px;font-weight:800;color:#39714d;letter-spacing:.6px}.houseStatus{font-size:9px;text-transform:uppercase;letter-spacing:.5px}.houseStatus.soldOut{color:#9d3d38}.houseStatus.available{color:#39714d}.soldOutHouse{opacity:.94}.soldOutTag{background:#071711!important;color:#fff!important}.listRow .rowActions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:max-content}.listRow .rowActions button{white-space:nowrap}.smallBtn:disabled{opacity:.45;cursor:not-allowed;text-decoration:none}
+@media(max-width:900px){.paymentRow{min-width:760px}.paymentSub{white-space:normal}.listRow .rowActions{justify-content:flex-start}}
+
+/* Payment approval / document actions */
+.paymentSuccessBanner{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border:1px solid #c9e3d2;background:linear-gradient(135deg,#f3faf5,#edf7f0);border-radius:12px;color:#164d36;margin-bottom:4px}
+.paymentSuccessBanner>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#d9efdf;color:#1c754d;font-weight:900;flex:0 0 auto}
+.paymentSuccessBanner b{display:block;font-size:13px}.paymentSuccessBanner small{display:block;margin-top:5px;color:#63746c;line-height:1.5;font-size:10px}
+.paymentRow .rowActions{gap:10px;flex-wrap:wrap}
+
+/* Final house form / transaction polish */
+.sellerFormIdentity{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(135deg,#fffdf8,#f4f7f2);margin-bottom:2px}
+.sellerFormAvatar{width:48px;height:48px;border-radius:50%;overflow:hidden;border:2px solid #d9c69b;background:#e8eee9;display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--deep);flex:0 0 auto}
+.sellerFormAvatar img{width:100%;height:100%;object-fit:cover}
+.sellerFormIdentity b,.sellerFormIdentity small{display:block}.sellerFormIdentity b{font-size:13px;margin-top:2px}.sellerFormIdentity small{font-size:10px;color:var(--muted);margin-top:3px}
+.spaceTotal{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid #d9e5dc;border-radius:11px;background:#f0f7f2;color:#557064;font-size:10px;font-weight:800;letter-spacing:1px}.spaceTotal strong{font-size:18px;color:#0b5b3e}
+.detailInfo .featureRow{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:14px}.detailInfo .featureRow b{min-width:0}
+@media(max-width:700px){.detailInfo .featureRow{grid-template-columns:repeat(2,1fr)}.sellerFormIdentity{align-items:flex-start}}
+.paymentRoleNotice{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin-bottom:14px;border:1px solid #d7e7dd;background:#f3f8f4;border-radius:12px;color:#174c38}.paymentRoleNotice>span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#dcefe3;color:#23704e;font-weight:900;flex:0 0 auto}.paymentRoleNotice b{display:block;font-size:13px}.paymentRoleNotice small{display:block;margin-top:4px;color:#66766e;line-height:1.5;font-size:10px}

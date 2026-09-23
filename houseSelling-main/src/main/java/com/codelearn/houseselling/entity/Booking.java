@@ -5,6 +5,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 public class Booking {
@@ -16,6 +17,9 @@ public class Booking {
     @NotNull(message = "Booking date is required")
     @FutureOrPresent(message = "Booking date cannot be in the past")
     private LocalDate bookingDate;
+
+    @NotNull(message = "Booking time is required")
+    private LocalTime bookingTime;
 
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
@@ -43,6 +47,14 @@ public class Booking {
 
     public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public LocalTime getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(LocalTime bookingTime) {
+        this.bookingTime = bookingTime;
     }
 
     public BookingStatus getStatus() {

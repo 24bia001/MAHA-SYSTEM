@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 public class House {
@@ -25,6 +26,9 @@ public class House {
     @Positive(message = "Price must be greater than zero")
     private Double price;
 
+    @Column(length = 30)
+    private String status = "AVAILABLE";
+
     @NotNull(message = "Bedrooms is required")
     @Positive(message = "Bedrooms must be greater than zero")
     private Integer bedrooms;
@@ -32,6 +36,14 @@ public class House {
     @NotNull(message = "Bathrooms is required")
     @Positive(message = "Bathrooms must be greater than zero")
     private Integer bathrooms;
+
+    @NotNull(message = "Halls are required")
+    @PositiveOrZero(message = "Halls cannot be negative")
+    private Integer halls;
+
+    @NotNull(message = "Kitchens are required")
+    @PositiveOrZero(message = "Kitchens cannot be negative")
+    private Integer kitchens;
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
@@ -89,6 +101,14 @@ public class House {
         this.price = price;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Integer getBedrooms() {
         return bedrooms;
     }
@@ -104,6 +124,12 @@ public class House {
     public void setBathrooms(Integer bathrooms) {
         this.bathrooms = bathrooms;
     }
+
+    public Integer getHalls() { return halls; }
+    public void setHalls(Integer halls) { this.halls = halls; }
+
+    public Integer getKitchens() { return kitchens; }
+    public void setKitchens(Integer kitchens) { this.kitchens = kitchens; }
 
     public Seller getSeller() {
         return seller;
